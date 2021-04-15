@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="BlockPlaceLimiter:jar">
+    <output-path>$USER_HOME$/Desktop</output-path>
+    <root id="archive" name="BlockPlaceLimiter.jar">
+      <element id="module-output" name="BlockPlaceLimiter" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/config.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/limits.yml" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/plugin.yml" />
+    </root>
+  </artifact>
+</component>

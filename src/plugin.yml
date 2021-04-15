@@ -1,0 +1,22 @@
+name: BlockPlaceLimiter
+version: 1.0.0
+description: A plugin for limiting what blocks players can place, break or interact with based on permissions
+author: Carrot/REghZy
+main: reghzy.blocklimiter.BlockPlaceLimiterPlugin
+prefix: BlockPlaceLimiter
+softdepend:
+  - PermissionsEx
+
+permissions:
+  blocklimiter.perms.commands:
+    default: op
+  blocklimiter.perms.commands.reload:
+    default: op
+
+commands:
+  blockplacelimiter:
+    permission: blocklimiter.perms.commands
+    description: Main command for BlockPlaceLimiter
+    usage: /blockplacementlimiter
+    aliases:
+      - bpl
