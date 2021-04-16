@@ -1,4 +1,4 @@
-package reghzy.blocklimiter.command.helpers;
+package reghzy.blocklimiter.command.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
+import reghzy.blocklimiter.track.world.Vector3;
 import reghzy.blocklimiter.utils.SplitString;
 import reghzy.blocklimiter.utils.StringHelper;
 
@@ -76,13 +77,13 @@ public class CommandArgs implements Iterable<String> {
     }
 
     /**
-     * Tries to parse the value at the given index as a boolean (if its equal to "true" or "t")
+     * Tries to parse the value at the given index as a boolean (if its equal to "true", "t", "yes" or "y")
      * @param index The index to extract the value at
      */
     public Boolean getBoolean(int index) {
         if (withinRange(index)) {
             String value = arguments[index].toLowerCase();
-            return value.equals("true") || value.equalsIgnoreCase("t");
+            return value.equals("true") || value.equals("t") || value.equals("yes") || value.equals("y");
         }
         return null;
     }
@@ -207,6 +208,21 @@ public class CommandArgs implements Iterable<String> {
             }
 
             return new BlockDataPair(id, data);
+        }
+
+        return null;
+    }
+
+    public Vector3 getVector3(int startIndex) {
+        if (withinRange(startIndex + 2)) {
+            Integer x = StringHelper.parseInteger(arguments[startIndex + 0]);
+            Integer y = StringHelper.parseInteger(arguments[startIndex + 1]);
+            Integer z = StringHelper.parseInteger(arguments[startIndex + 2]);
+            if (x == null || y == null || z == null) {
+                return null;
+            }
+
+            return new Vector3(x, y, z);
         }
 
         return null;

@@ -1,6 +1,7 @@
 package reghzy.blocklimiter.track.world;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import reghzy.blocklimiter.utils.StringHelper;
@@ -20,6 +21,12 @@ public class Vector3 {
         this.x = block.getX();
         this.y = block.getY();
         this.z = block.getZ();
+    }
+
+    public Vector3(Location location) {
+        this.x = location.getBlockX();
+        this.y = location.getBlockY();
+        this.z = location.getBlockZ();
     }
 
     public Vector2 toVector2() {
@@ -54,7 +61,7 @@ public class Vector3 {
     }
 
     public String formatColour() {
-        return "&4" + x + "&a, " + y + "&9, " + z;
+        return "&c" + x + "&6, &a" + y + "&6, &9" + z;
     }
 
     @Override

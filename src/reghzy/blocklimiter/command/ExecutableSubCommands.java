@@ -1,16 +1,14 @@
-package reghzy.blocklimiter.command.utils;
+package reghzy.blocklimiter.command;
 
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import reghzy.blocklimiter.command.helpers.CommandArgs;
+import reghzy.blocklimiter.command.utils.CommandArgs;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class ExecutableSubCommands extends ExecutableCommand implements TabCompleter {
+public abstract class ExecutableSubCommands extends ExecutableCommand { // implements TabCompleter {
     private final HashMap<String, ExecutableCommand> commands;
 
     public ExecutableSubCommands(String mainCommands, String... descriptionLines) {
@@ -78,8 +76,8 @@ public abstract class ExecutableSubCommands extends ExecutableCommand implements
 
     public abstract void registerCommands();
 
-    @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String cmd, String[] args) {
-        return getTabCompleter(commandSender, new CommandArgs(args));
-    }
+    //@Override
+    //public List<String> onTabComplete(CommandSender commandSender, Command command, String cmd, String[] args) {
+    //    return getTabCompleter(commandSender, new CommandArgs(args));
+    //}
 }

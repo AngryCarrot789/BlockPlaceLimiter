@@ -1,20 +1,18 @@
-package reghzy.blocklimiter.command.utils;
+package reghzy.blocklimiter.command;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import reghzy.blocklimiter.BlockPlaceLimiterPlugin;
 import reghzy.blocklimiter.command.commands.multi.LimitsCommands;
 import reghzy.blocklimiter.command.commands.multi.PlayerDataCommands;
 import reghzy.blocklimiter.command.commands.single.ClearUnusedDataCommand;
 import reghzy.blocklimiter.command.commands.single.HelpCommand;
-import reghzy.blocklimiter.command.helpers.CommandArgs;
+import reghzy.blocklimiter.command.commands.single.ReloadCommand;
+import reghzy.blocklimiter.command.commands.single.SyncWorldsCommand;
+import reghzy.blocklimiter.command.utils.CommandArgs;
 import reghzy.blocklimiter.utils.permissions.PermissionsHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class MainCommandExecutor extends ExecutableSubCommands implements CommandExecutor {
     private final CommandLogger logger;
@@ -27,10 +25,12 @@ public final class MainCommandExecutor extends ExecutableSubCommands implements 
     @Override
     public void registerCommands() {
         HelpCommand help = new HelpCommand();
-        registerCommand("help", help.addPassThrough(help));
-        registerCommand("limits", help.addPassThrough(new LimitsCommands()));
-        registerCommand("player", help.addPassThrough(new PlayerDataCommands()));
-        registerCommand("clear", help.addPassThrough(new ClearUnusedDataCommand()));
+        registerCommand("help", help.registerPassthrough(help));
+        registerCommand("limits", help.registerPassthrough(new LimitsCommands()));
+        registerCommand("players", help.registerPassthrough(new PlayerDataCommands()));
+        registerCommand("clear", help.registerPassthrough(new ClearUnusedDataCommand()));
+        registerCommand("sync", help.registerPassthrough(new SyncWorldsCommand()));
+        registerCommand("reload", help.registerPassthrough(new ReloadCommand()));
     }
 
     @Override

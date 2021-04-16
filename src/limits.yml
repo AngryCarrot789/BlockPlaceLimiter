@@ -2,6 +2,11 @@
   -1:
     BypassPermission: 'blocklimit.bypass.quarry'
     NoInitialPermissionMessage: '&4You cannot place any quarries'
+    AllowOthersToBreakOwnerBlock: false
+    OtherPlayerBreakBlockMessage: '&6%p just broke your quarry'
+    OtherPlayerBreakBlockAttemptMessage: 'you tried to break %u''s quarry but youre not allowed'
+    YouBreakOwnerBlockMessage: '&6You broke %u''s quarry'
+    YouBreakOwnerBlockAttemptMessage: '&6%u tried to break your quarry'
     RangeLimits:
       # this MUST start at 0 (otherwise it gets weird)
       # the start is index based. this is saying they can place 1, 2, 3 or 4 quarries but no more.
@@ -9,13 +14,7 @@
       0 to 4:
         Permission: 'blocklimit.quarry4'
         LimitHitMessage: '&3You have placed your maximum of &a4 &3quarries'
-        AllowOthersToBreakOwnerBlock: true
-        OtherPlayerBreakBlockMessage: '&6%p just broke your quarry'
-        OtherPlayerBreakBlockAttemptMessage: '&6%p tried to break your quarry'
       # this is saying they can place 5, 6, 7 or 8 quarries (but no less or more)
       5 to 8:
         Permission: 'blocklimit.quarry8'
         LimitHitMessage: '&3You have placed your maximum of &a8 &3quarries'
-        AllowOthersToBreakOwnerBlock: true
-        OtherPlayerBreakBlockMessage: '&6%p just broke your quarry'
-        OtherPlayerBreakBlockAttemptMessage: '&6%p tried to break your quarry'

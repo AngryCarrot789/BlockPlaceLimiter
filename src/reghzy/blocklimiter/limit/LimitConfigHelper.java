@@ -22,6 +22,8 @@ public class LimitConfigHelper {
     public static final String AllowOtherToBreakOwnerBlockName = "AllowOthersToBreakOwnerBlock";
     public static final String OtherPlayerBreakBlockMsgName    = "OtherPlayerBreakBlockMessage";
     public static final String OtherPlayerBreakBlockAttemptMsg = "OtherPlayerBreakBlockAttemptMessage";
+    public static final String YouBreakOwnerBlockMsgName       = "YouBreakOwnerBlockMessage";
+    public static final String YouBreakOwnerBlockAttemptMsg    = "YouBreakOwnerBlockAttemptMessage";
 
     // ##############################################################################################
 
@@ -65,5 +67,13 @@ public class LimitConfigHelper {
 
     public static String getOtherPlayerBreakOwnerBlockAttemptMsg(ConfigurationSection section, String defaultValue) {
         return section.getString(OtherPlayerBreakBlockAttemptMsg, defaultValue);
+    }
+
+    public static String getYouBreakOwnerBlockMsg(ConfigurationSection section, String defaultValue) {
+        return section.getString(YouBreakOwnerBlockMsgName, defaultValue);
+    }
+
+    public static String getYouBreakOwnerBlockAttemptMsg(ConfigurationSection section, String defaultValue) {
+        return section.getString(YouBreakOwnerBlockAttemptMsg, defaultValue);
     }
 }

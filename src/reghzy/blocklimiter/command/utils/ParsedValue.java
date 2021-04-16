@@ -1,4 +1,4 @@
-package reghzy.blocklimiter.command.helpers;
+package reghzy.blocklimiter.command.utils;
 
 public class ParsedValue<T> {
     public T value;

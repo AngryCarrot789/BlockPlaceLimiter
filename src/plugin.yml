@@ -6,6 +6,7 @@ main: reghzy.blocklimiter.BlockPlaceLimiterPlugin
 prefix: BlockPlaceLimiter
 softdepend:
   - PermissionsEx
+  - WorldEdit
 
 permissions:
   blocklimiter.perms.commands:

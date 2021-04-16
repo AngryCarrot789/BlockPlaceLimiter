@@ -1,6 +1,5 @@
-package reghzy.blocklimiter.command.helpers;
+package reghzy.blocklimiter.command.utils;
 
-import gnu.trove.procedure.array.ToObjectArrayProceedure;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

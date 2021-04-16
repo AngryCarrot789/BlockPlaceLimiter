@@ -2,6 +2,7 @@ package reghzy.blocklimiter.track.world;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import reghzy.blocklimiter.exceptions.BlockAlreadyBrokenException;
 import reghzy.blocklimiter.exceptions.BlockAlreadyPlacedException;
 import reghzy.blocklimiter.track.ServerBlockTracker;
@@ -76,6 +77,10 @@ public class WorldBlockTracker {
 
     public TrackedBlock getBlock(Vector2 vector2, int y) {
         return getLayer(y).getBlock(vector2);
+    }
+
+    public TrackedBlock getBlock(Block block) {
+        return getLayer(block.getY()).getBlock(new Vector2(block.getX(), block.getZ()));
     }
 
     public TrackedBlock getBlock(Vector3 vector3) {

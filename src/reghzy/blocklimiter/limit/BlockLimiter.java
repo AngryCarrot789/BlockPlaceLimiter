@@ -3,7 +3,7 @@ package reghzy.blocklimiter.limit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import reghzy.blocklimiter.track.utils.IntegerRange;
-import reghzy.blocklimiter.track.utils.PermissionMessagePair;
+import reghzy.blocklimiter.track.utils.RangeLimit;
 import reghzy.blocklimiter.utils.StringHelper;
 import reghzy.blocklimiter.utils.logs.ChatFormat;
 import reghzy.blocklimiter.utils.logs.ChatLogger;
@@ -46,15 +46,17 @@ public class BlockLimiter {
             boolean allowOthersToBreakOwnerBlock = LimitConfigHelper.getAllowOthersToBreakOwnerBlock(metaSection, true);
             String otherPlayerBrokeOwnerBlockMsg = LimitConfigHelper.getOtherPlayerBrokenOwnerBlockMsg(metaSection, null);
             String otherPlayerBreakOwnerBlockAttemptMsg = LimitConfigHelper.getOtherPlayerBreakOwnerBlockAttemptMsg(metaSection, null);
+            String youBrokeOwnerBlockMsg = LimitConfigHelper.getYouBreakOwnerBlockMsg(metaSection, null);
+            String youBreakOwnerBlockAttemptMsg = LimitConfigHelper.getYouBreakOwnerBlockAttemptMsg(metaSection, null);
 
-            ConfigurationSection limitsSection = LimitConfigHelper.getRangeLimitSection(metaSection);
-            if (limitsSection == null) {
+            ConfigurationSection rangeLimitsSection = LimitConfigHelper.getRangeLimitSection(metaSection);
+            if (rangeLimitsSection == null) {
                 ChatLogger.logPlugin(ChatColor.RED + "Limits section for ID: " + ChatFormat.apostrophise(String.valueOf(id)) + " metadata: " + ChatFormat.apostrophise(metaKey));
                 return null;
             }
 
             RangeLimits rangeLimits = new RangeLimits();
-            for(String limitKey : limitsSection.getKeys(false)) {
+            for(String limitKey : rangeLimitsSection.getKeys(false)) {
                 IntegerRange range = StringHelper.parseRange(limitKey, "to", 0);
                 if (range == null) {
                     ChatLogger.logPlugin(ChatColor.RED + "Range limit wasn't formatted correctly for the limit: " + ChatFormat.apostrophise(limitKey) + ", for ID: " + ChatFormat.apostrophise(String.valueOf(id)) + " metadata: " + ChatFormat.apostrophise(metaKey));
@@ -62,7 +64,7 @@ public class BlockLimiter {
                     return null;
                 }
 
-                ConfigurationSection rangeSection = limitsSection.getConfigurationSection(limitKey);
+                ConfigurationSection rangeSection = rangeLimitsSection.getConfigurationSection(limitKey);
                 if (rangeSection == null) {
                     ChatLogger.logPlugin(ChatColor.RED + "A Range limit's section had nothing in it for the limit: " + ChatFormat.apostrophise(limitKey) + ", for ID: " + ChatFormat.apostrophise(String.valueOf(id)) + " metadata: " + ChatFormat.apostrophise(metaKey));
                     return null;
@@ -75,7 +77,8 @@ public class BlockLimiter {
                 }
 
                 String limitHitMsg = LimitConfigHelper.getLimitHitMessage(rangeSection, "&3You have reached your limit for how many of this block you can place");
-                rangeLimits.addPermission(range, new PermissionMessagePair(permission, limitHitMsg));
+
+                rangeLimits.addPermission(range, new RangeLimit(permission, limitHitMsg));
             }
 
             metaLimits.put(meta, new MetaLimiter(
@@ -85,6 +88,8 @@ public class BlockLimiter {
                     allowOthersToBreakOwnerBlock,
                     otherPlayerBrokeOwnerBlockMsg,
                     otherPlayerBreakOwnerBlockAttemptMsg,
+                    youBrokeOwnerBlockMsg,
+                    youBreakOwnerBlockAttemptMsg,
                     rangeLimits));
         }
 

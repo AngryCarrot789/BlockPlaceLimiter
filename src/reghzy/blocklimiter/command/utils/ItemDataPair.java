@@ -1,4 +1,4 @@
-package reghzy.blocklimiter.command.helpers;
+package reghzy.blocklimiter.command.utils;
 
 import org.bukkit.block.Block;
 

@@ -1,10 +1,11 @@
 package reghzy.blocklimiter.limit;
 
+import gnu.trove.set.hash.TIntHashSet;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.utils.IntegerRange;
-import reghzy.blocklimiter.track.utils.PermissionMessagePair;
+import reghzy.blocklimiter.track.utils.RangeLimit;
 import reghzy.blocklimiter.utils.Translator;
 import reghzy.blocklimiter.utils.debug.Debugger;
 import reghzy.blocklimiter.utils.permissions.PermissionsHelper;
@@ -22,9 +23,12 @@ public class MetaLimiter {
     public final BlockDataPair dataPair;
     public final String bypassPermission;
     public final String noInitialPermsMsg;
+
     public final boolean allowOthersToBreakOwnerBlock;
-    public final String otherPlayerBrokeOwnerBlockMsg;
+    public final String otherPlayerBrekeOwnerBlockMsg;
     public final String otherPlayerBreakOwnerBlockAttemptMsg;
+    public final String youBreakOwnerBlockMsg;
+    public final String youBreakOwnerBlockAttemptMsg;
 
     private final RangeLimits rangeLimits;
     // used for getting a reference to a range by indexing to the numbers in between
@@ -34,14 +38,19 @@ public class MetaLimiter {
                        String bypassPermission,
                        String noInitialPermsMsg,
                        boolean allowOthersToBreakOwnerBlock,
-                       String otherPlayerBrokeOwnerBlockMsg, String otherPlayerBreakOwnerBlockAttemptMsg,
+                       String otherPlayerBrekeOwnerBlockMsg,
+                       String otherPlayerBreakOwnerBlockAttemptMsg,
+                       String youBreakOwnerBlockMsg,
+                       String youBreakOwnerBlockAttemptMsg,
                        RangeLimits rangeLimits) {
+        this.allowOthersToBreakOwnerBlock = allowOthersToBreakOwnerBlock;
+        this.otherPlayerBrekeOwnerBlockMsg = otherPlayerBrekeOwnerBlockMsg;
+        this.otherPlayerBreakOwnerBlockAttemptMsg = otherPlayerBreakOwnerBlockAttemptMsg;
+        this.youBreakOwnerBlockMsg = youBreakOwnerBlockMsg;
+        this.youBreakOwnerBlockAttemptMsg = youBreakOwnerBlockAttemptMsg;
         this.dataPair = new BlockDataPair(id, metadata);
         this.bypassPermission = bypassPermission;
         this.noInitialPermsMsg = noInitialPermsMsg;
-        this.allowOthersToBreakOwnerBlock = allowOthersToBreakOwnerBlock;
-        this.otherPlayerBrokeOwnerBlockMsg = otherPlayerBrokeOwnerBlockMsg;
-        this.otherPlayerBreakOwnerBlockAttemptMsg = otherPlayerBreakOwnerBlockAttemptMsg;
         this.rangeLimits = rangeLimits;
         this.limitRangeCache = this.rangeLimits.generateCache();
     }
@@ -59,7 +68,7 @@ public class MetaLimiter {
             return false;
         }
 
-        PermissionMessagePair pair = this.rangeLimits.getPermission(currentRange);
+        RangeLimit pair = this.rangeLimits.getPermission(currentRange);
         if (pair == null) {
             Debugger.log("Fatal error: The range for ID " + this.dataPair.id + " didn't contain link to its permission (range " + currentRange.toString() + ")");
             player.sendMessage(ChatColor.GOLD + "Internal server error: contact the server admins about 'BlockPlacementLimiter:Perms'");
@@ -73,7 +82,7 @@ public class MetaLimiter {
             }
 
             Debugger.log(player.getName() + " Failed to place a block. Total placed: " + currentlyPlaced);
-            player.sendMessage(Translator.translateWildcards(pair.denyMessage, player));
+            player.sendMessage(Translator.translateWildcards(pair.limitHitMessage, player));
             return false;
         }
 

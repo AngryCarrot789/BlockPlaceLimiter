@@ -1,7 +1,7 @@
-package reghzy.blocklimiter.command.utils;
+package reghzy.blocklimiter.command;
 
 import org.bukkit.command.CommandSender;
-import reghzy.blocklimiter.command.helpers.CommandArgs;
+import reghzy.blocklimiter.command.utils.CommandArgs;
 
 /**
  * An interface in which contains an executable command, requiring a sender, logger and arguments

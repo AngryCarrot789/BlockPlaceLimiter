@@ -1,10 +1,10 @@
 package reghzy.blocklimiter.command.commands.single;
 
 import org.bukkit.command.CommandSender;
-import reghzy.blocklimiter.command.helpers.CommandArgs;
-import reghzy.blocklimiter.command.utils.CommandDescriptor;
-import reghzy.blocklimiter.command.utils.CommandLogger;
-import reghzy.blocklimiter.command.utils.ExecutableCommand;
+import reghzy.blocklimiter.command.utils.CommandArgs;
+import reghzy.blocklimiter.command.CommandDescriptor;
+import reghzy.blocklimiter.command.CommandLogger;
+import reghzy.blocklimiter.command.ExecutableCommand;
 
 import java.util.ArrayList;
 
@@ -34,7 +34,7 @@ public class HelpCommand extends ExecutableCommand {
         }
     }
 
-    public <T extends ExecutableCommand> T addPassThrough(T command) {
+    public <T extends ExecutableCommand> T registerPassthrough(T command) {
         this.commandDescriptors.add(command.getDescription());
         return command;
     }

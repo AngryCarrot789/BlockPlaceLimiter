@@ -1,4 +1,4 @@
-package reghzy.blocklimiter.command.utils;
+package reghzy.blocklimiter.command;
 
 import org.bukkit.ChatColor;
 

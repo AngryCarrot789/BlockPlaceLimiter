@@ -25,7 +25,6 @@ import reghzy.blocklimiter.utils.logs.ChatLogger;
 import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.ElementType;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -137,22 +136,34 @@ public final class ServerBlockTracker {
                 Debugger.log("Broke limited block at " + trackedBlock.getLocation().toString());
                 return false;
             }
-            Debugger.log("1 Failed to break block at " + trackedBlock.getLocation().toString());
+            Debugger.log("A_Failed to break block at " + trackedBlock.getLocation().toString());
         }
         else {
             if (limiter.allowOthersToBreakOwnerBlock) {
                 if (ownerData.removeBlock(trackedBlock)) {
                     breakBlockAt(getWorldTracker(trackedBlock.getWorldName()), trackedBlock.getLocation());
                     if (ownerPlayer != null) {
-                        ownerPlayer.sendMessage(Translator.translateWildcards(limiter.otherPlayerBrokeOwnerBlockMsg, breakerPlayer));
+                        if (limiter.otherPlayerBrekeOwnerBlockMsg != null) {
+                            ownerPlayer.sendMessage(Translator.translateWildcards(limiter.otherPlayerBrekeOwnerBlockMsg, breakerPlayer));
+                        }
+                    }
+                    if (limiter.youBreakOwnerBlockMsg != null) {
+                        breakerPlayer.sendMessage(Translator.translateWildcards(limiter.youBreakOwnerBlockMsg, owner.getName(), breakerPlayer.getWorld().getName()));
                     }
                     Debugger.log("Broke limited block at " + trackedBlock.getLocation().toString());
                     return false;
                 }
-                Debugger.log("2 Failed to break block at " + trackedBlock.getLocation().toString());
+                Debugger.log("B_Failed to break block at " + trackedBlock.getLocation().toString());
             }
             else {
-                ownerPlayer.sendMessage(Translator.translateWildcards(limiter.otherPlayerBreakOwnerBlockAttemptMsg, breakerPlayer));
+                if (ownerPlayer != null) {
+                    if (limiter.otherPlayerBreakOwnerBlockAttemptMsg != null) {
+                        ownerPlayer.sendMessage(Translator.translateWildcards(limiter.otherPlayerBreakOwnerBlockAttemptMsg, breakerPlayer));
+                    }
+                }
+                if (limiter.youBreakOwnerBlockAttemptMsg != null) {
+                    breakerPlayer.sendMessage(Translator.translateWildcards(limiter.youBreakOwnerBlockAttemptMsg, owner.getName(), breakerPlayer.getWorld().getName()));
+                }
                 return true;
             }
         }
@@ -187,7 +198,7 @@ public final class ServerBlockTracker {
         }
         else {
             if (placed == 0) {
-                player.sendMessage(Translator.translateWildcards(limiter.noInitialPermsMsg, player));
+                player.sendMessage(Translator.translateWildcards(Translator.nullMessageCheck(limiter.noInitialPermsMsg), player));
             }
             return true;
         }

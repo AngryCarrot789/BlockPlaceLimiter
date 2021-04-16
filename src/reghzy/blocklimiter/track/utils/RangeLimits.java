@@ -3,21 +3,21 @@ package reghzy.blocklimiter.track.utils;
 import java.util.HashMap;
 
 public class RangeLimits {
-    private final HashMap<IntegerRange, PermissionMessagePair> permissions;
+    private final HashMap<IntegerRange, RangeLimit> permissions;
 
-    public RangeLimits(HashMap<IntegerRange, PermissionMessagePair> permissions) {
+    public RangeLimits(HashMap<IntegerRange, RangeLimit> permissions) {
         this.permissions = permissions;
     }
 
     public RangeLimits() {
-        this.permissions = new HashMap<IntegerRange, PermissionMessagePair>(4);
+        this.permissions = new HashMap<IntegerRange, RangeLimit>(4);
     }
 
-    public PermissionMessagePair getPermission(IntegerRange range) {
+    public RangeLimit getPermission(IntegerRange range) {
         return this.permissions.get(range);
     }
 
-    public void addPermission(IntegerRange range, PermissionMessagePair permission) {
+    public void addPermission(IntegerRange range, RangeLimit permission) {
         this.permissions.put(range, permission);
     }
 

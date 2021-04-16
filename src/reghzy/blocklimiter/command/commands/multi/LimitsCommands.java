@@ -2,15 +2,16 @@ package reghzy.blocklimiter.command.commands.multi;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import reghzy.blocklimiter.command.helpers.CommandArgs;
-import reghzy.blocklimiter.command.utils.CommandLogger;
-import reghzy.blocklimiter.command.utils.ExecutableCommand;
-import reghzy.blocklimiter.command.utils.ExecutableSubCommands;
+import reghzy.blocklimiter.command.utils.CommandArgs;
+import reghzy.blocklimiter.command.CommandLogger;
+import reghzy.blocklimiter.command.ExecutableCommand;
+import reghzy.blocklimiter.command.ExecutableSubCommands;
 import reghzy.blocklimiter.limit.BlockLimiter;
 import reghzy.blocklimiter.limit.LimitManager;
 import reghzy.blocklimiter.limit.MetaLimiter;
 import reghzy.blocklimiter.track.utils.IntegerRange;
-import reghzy.blocklimiter.track.utils.PermissionMessagePair;
+import reghzy.blocklimiter.track.utils.RangeLimit;
+import reghzy.blocklimiter.utils.Translator;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -47,34 +48,35 @@ public class LimitsCommands extends ExecutableSubCommands {
             }
 
             Integer metadata = args.getInteger(1);
-            logger.logGreen("Block limiter | ID: " + limiter.id + " |-------------------");
+            logger.logGreen("Block limiter | ID: " + limiter.id + " |-----------------------------");
 
             if (metadata == null) {
                 for (MetaLimiter meta : limiter.metadata.values()) {
                     logger.logTranslate("  &6Metadata: &3" + meta.dataPair.data);
                     logger.logTranslate("  &6Bypass Permission: &3" + ChatColor.DARK_AQUA + meta.bypassPermission);
-                    logger.logTranslate("  &6Other players allow to break owner's block: &3" + meta.allowOthersToBreakOwnerBlock);
                     logger.logTranslate("  &6No permission for any limit range (message):");
-                    logger.logCyan("    " + meta.noInitialPermsMsg);
+                    logger.logTranslate("    " + meta.noInitialPermsMsg);
+                    logger.logTranslate("  &6Other players allow to break owner's block: &3" + meta.allowOthersToBreakOwnerBlock);
                     logger.logTranslate("  &6Owner block broken by other player (message):");
-                    logger.logCyan("    " + meta.otherPlayerBrokeOwnerBlockMsg);
+                    logger.logTranslate("    " + Translator.nullMessageCheck(meta.otherPlayerBrekeOwnerBlockMsg));
                     logger.logTranslate("  &6Other player attempt to break owner's block (message):");
-                    logger.logCyan("    " + meta.otherPlayerBreakOwnerBlockAttemptMsg);
-                    logger.logTranslate("  &dLimited Ranges: --------------------------------");
-                    Collection<Map.Entry<IntegerRange, PermissionMessagePair>> entries = meta.getRangeLimits().getEntrySets();
-                    for (Iterator<Map.Entry<IntegerRange, PermissionMessagePair>> iter = entries.iterator(); iter.hasNext(); ) {
-                        Map.Entry<IntegerRange, PermissionMessagePair> entry = iter.next();
+                    logger.logTranslate("    " + Translator.nullMessageCheck(meta.otherPlayerBreakOwnerBlockAttemptMsg));
+                    logger.logTranslate("  &dLimited Ranges: (these might not be in order) ----------");
+                    Collection<Map.Entry<IntegerRange, RangeLimit>> entries = meta.getRangeLimits().getEntrySets();
+                    for (Iterator<Map.Entry<IntegerRange, RangeLimit>> iterator = entries.iterator(); iterator.hasNext(); ) {
+                        Map.Entry<IntegerRange, RangeLimit> entry = iterator.next();
                         IntegerRange range = entry.getKey();
-                        PermissionMessagePair permissionMessages = entry.getValue();
+                        RangeLimit rangeLimit = entry.getValue();
                         logger.logTranslate("    &6From &3" + range.min + " &6to &3" + range.max);
-                        logger.logGold("    Permission:");
-                        logger.logCyan("      " + permissionMessages.permission);
-                        logger.logGold("    Deny Message:");
-                        logger.logCyan("      " + permissionMessages.denyMessage);
-                        if (iter.hasNext()) {
-                            logger.logTranslate("    &d---------------------------------------------");
+                        logger.logTranslate("    &6Permission:");
+                        logger.logTranslate("      &3" + Translator.nullPermsCheck(rangeLimit.permission));
+                        logger.logTranslate("    &6Deny Message:");
+                        logger.logTranslate("      " + Translator.nullMessageCheck(rangeLimit.limitHitMessage));
+                        if (iterator.hasNext()) {
+                            logger.logTranslate("    &3--------------------------------------------");
                         }
                     }
+                    logger.logTranslate("  &d-------------------------------------------------");
                     logger.logGreen("--------------------------------------------------");
                 }
             }
@@ -92,28 +94,29 @@ public class LimitsCommands extends ExecutableSubCommands {
                 MetaLimiter meta = limiter.getMetaLimit(metadata);
                 logger.logTranslate("  &6Metadata: &3" + meta.dataPair.data);
                 logger.logTranslate("  &6Bypass Permission: &3" + ChatColor.DARK_AQUA + meta.bypassPermission);
-                logger.logTranslate("  &6Other players allow to break owner's block: &3" + meta.allowOthersToBreakOwnerBlock);
                 logger.logTranslate("  &6No permission for any limit range (message):");
-                logger.logCyan("    " + meta.noInitialPermsMsg);
+                logger.logTranslate("   &3Ⱶ &r" + meta.noInitialPermsMsg);
+                logger.logTranslate("  &6Other players allow to break owner's block: &3" + meta.allowOthersToBreakOwnerBlock);
                 logger.logTranslate("  &6Owner block broken by other player (message):");
-                logger.logCyan("    " + meta.otherPlayerBrokeOwnerBlockMsg);
+                logger.logTranslate("   &3Ⱶ &r" + Translator.nullMessageCheck(meta.otherPlayerBrekeOwnerBlockMsg));
                 logger.logTranslate("  &6Other player attempt to break owner's block (message):");
-                logger.logCyan("    " + meta.otherPlayerBreakOwnerBlockAttemptMsg);
-                logger.logTranslate("  &dLimited Ranges: --------------------------------");
-                Collection<Map.Entry<IntegerRange, PermissionMessagePair>> entries = meta.getRangeLimits().getEntrySets();
-                for (Iterator<Map.Entry<IntegerRange, PermissionMessagePair>> iter = entries.iterator(); iter.hasNext(); ) {
-                    Map.Entry<IntegerRange, PermissionMessagePair> entry = iter.next();
+                logger.logTranslate("   &3Ⱶ &r" + Translator.nullMessageCheck(meta.otherPlayerBreakOwnerBlockAttemptMsg));
+                logger.logTranslate("  &dLimited Ranges: (these might not be in order) ----------");
+                Collection<Map.Entry<IntegerRange, RangeLimit>> entries = meta.getRangeLimits().getEntrySets();
+                for (Iterator<Map.Entry<IntegerRange, RangeLimit>> iterator = entries.iterator(); iterator.hasNext(); ) {
+                    Map.Entry<IntegerRange, RangeLimit> entry = iterator.next();
                     IntegerRange range = entry.getKey();
-                    PermissionMessagePair permissionMessages = entry.getValue();
+                    RangeLimit rangeLimit = entry.getValue();
                     logger.logTranslate("    &6From &3" + range.min + " &6to &3" + range.max);
-                    logger.logGold("    Permission:");
-                    logger.logCyan("      " + permissionMessages.permission);
-                    logger.logGold("    Deny Message:");
-                    logger.logCyan("      " + permissionMessages.denyMessage);
-                    if (iter.hasNext()) {
-                        logger.logTranslate("    &d---------------------------------------------");
+                    logger.logTranslate("    &6Permission:");
+                    logger.logTranslate("      &3" + Translator.nullPermsCheck(rangeLimit.permission));
+                    logger.logTranslate("    &6Deny Message:");
+                    logger.logTranslate("      " + Translator.nullMessageCheck(rangeLimit.limitHitMessage));
+                    if (iterator.hasNext()) {
+                        logger.logTranslate("    &3--------------------------------------------");
                     }
                 }
+                logger.logTranslate("  &d-------------------------------------------------");
                 logger.logGreen("--------------------------------------------------");
             }
         }

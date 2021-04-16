@@ -9,7 +9,7 @@ import reghzy.blocklimiter.utils.logs.ChatFormat;
 import reghzy.blocklimiter.utils.logs.ChatLogger;
 
 public final class Debugger {
-    public static boolean allowDebugging = true;
+    public static boolean allowDebugging = false;
 
     public static void logBlockBreak(User breaker, TrackedBlock block) {
         messageOps(ChatFormat.gold(breaker.getName() + " broke " + block.getOwner().getName() + "'s block with ID " + block.getBlockData().toString() + " at " + block.getLocation().toString()));

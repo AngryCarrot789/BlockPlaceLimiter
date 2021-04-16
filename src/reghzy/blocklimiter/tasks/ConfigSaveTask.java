@@ -1,4 +1,4 @@
-package reghzy.blocklimiter.track.user;
+package reghzy.blocklimiter.tasks;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -6,6 +6,7 @@ import reghzy.blocklimiter.config.Config;
 import reghzy.blocklimiter.config.ConfigManager;
 import reghzy.blocklimiter.exceptions.FailedFileCreationException;
 import reghzy.blocklimiter.track.ServerBlockTracker;
+import reghzy.blocklimiter.track.user.PlayerDataLoader;
 import reghzy.blocklimiter.utils.debug.Debugger;
 
 import java.io.File;
@@ -28,6 +29,7 @@ public class ConfigSaveTask implements Runnable {
 
     public void loadConfig(Config mainConfig) {
         this.delayTicks = mainConfig.getInt(DelayTicksName);
+        restartTask();
     }
 
     public void startTask() {

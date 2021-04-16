@@ -1,15 +1,20 @@
 package reghzy.blocklimiter.utils;
 
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class Translator {
     public static String translateWildcards(String message, Player player) {
+        return translateWildcards(message, player.getName(), player.getWorld().getName());
+    }
+
+    public static String translateWildcards(String message, String username, String worldName) {
         StringBuilder newMessage = new StringBuilder(message.length() * 4);
         for (int i = 0; i < message.length(); i++) {
             char c = message.charAt(i);
             if (c == '%') {
-                newMessage.append(getWildcard(message.charAt(++i), player));
+                newMessage.append(getWildcard(message.charAt(++i), username, worldName));
             }
             else if (c == '&') {
                 newMessage.append((char) 167).append(message.charAt(++i));
@@ -21,18 +26,12 @@ public class Translator {
         return newMessage.toString();
     }
 
-    public static String getWildcard(char wildcard, Player player) {
+    public static String getWildcard(char wildcard, String username, String world) {
         if (wildcard == 'u')
-            return player.getName();
+            return username;
 
         if (wildcard == 'w') {
-            World world = player.getWorld();
-            if (world != null) {
-                String name = world.getName();
-                if (name != null)
-                    return name;
-            }
-            return "[Unknown world]";
+            return world;
         }
 
         return "";
@@ -47,10 +46,13 @@ public class Translator {
             if (c == character) {
                 if (i == lenIndex) {
                     string.append(c);
-                    return string.toString();
+                    break;
                 }
                 if (StringHelper.containsChar(codes, chars[++i])) {
-                    string.append((char)167).append(chars[i]);
+                    string.append('§').append(chars[i]);
+                }
+                else {
+                    string.append(c).append(chars[i]);
                 }
             }
             else {
@@ -60,9 +62,15 @@ public class Translator {
         return string.toString();
     }
 
-    private static String nullCheckPermission(String permission) {
+    public static String nullPermsCheck(String permission) {
         if (permission == null)
             return "[No permission]";
+        return permission;
+    }
+
+    public static String nullMessageCheck(String permission) {
+        if (permission == null)
+            return "[No message]";
         return permission;
     }
 }
