@@ -1,5 +1,6 @@
 package reghzy.blocklimiter.track.world;
 
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import reghzy.blocklimiter.utils.StringHelper;
@@ -50,6 +51,10 @@ public class Vector3 {
 
     public static String serialise(Vector3 vector3) {
         return String.valueOf(vector3.x) + ',' + vector3.y + ',' + vector3.z;
+    }
+
+    public String formatColour() {
+        return "&4" + x + "&a, " + y + "&9, " + z;
     }
 
     @Override

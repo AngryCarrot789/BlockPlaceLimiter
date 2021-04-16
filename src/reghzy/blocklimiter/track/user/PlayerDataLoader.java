@@ -1,7 +1,7 @@
 package reghzy.blocklimiter.track.user;
 
 import org.bukkit.plugin.Plugin;
-import reghzy.blocklimiter.config.Config;
+import reghzy.blocklimiter.exceptions.BlockAlreadyPlacedException;
 import reghzy.blocklimiter.exceptions.FailedFileCreationException;
 import reghzy.blocklimiter.exceptions.IncorrectDataFormatException;
 import reghzy.blocklimiter.track.ServerBlockTracker;
@@ -9,16 +9,21 @@ import reghzy.blocklimiter.track.block.TrackedBlock;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.world.Vector3;
 import reghzy.blocklimiter.track.world.WorldBlockTracker;
-import reghzy.blocklimiter.utils.StringHelper;
 import reghzy.blocklimiter.utils.SplitString;
+import reghzy.blocklimiter.utils.StringHelper;
 import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntrySet;
 import reghzy.blocklimiter.utils.logs.ChatFormat;
+import reghzy.blocklimiter.utils.logs.ChatLogger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.logging.Logger;
 
 public final class PlayerDataLoader {
     public static File PlayerDataFolder;
@@ -73,11 +78,12 @@ public final class PlayerDataLoader {
             }
 
             User user = serverBlockTracker.getUserManager().getUser(username);
-            BlockDataPair blockData = new BlockDataPair(
-                    StringHelper.parseInteger(block.before),
-                    StringHelper.parseInteger(block.after));
+            BlockDataPair blockData = new BlockDataPair(StringHelper.parseInteger(block.before), StringHelper.parseInteger(block.after));
 
             for(String location : StringHelper.split(blockLocationSplit.after, LocationSplit, 0)) {
+                if (location.length() < 2)
+                    continue;
+
                 SplitString worldVector = SplitString.split(location, WorldVectorSplit);
                 if (worldVector == null) {
                     throw new IncorrectDataFormatException("The split data between the world and location was incorrect. Data: " + location);
@@ -88,51 +94,67 @@ public final class PlayerDataLoader {
                     throw new IncorrectDataFormatException("A parsed vector3 was not formatted correctly: " + worldVector.after);
                 }
 
-                loadTrackedBlock(new TrackedBlock(user, worldVector.before, blockData, parsed));
+                try {
+                    loadTrackedBlock(new TrackedBlock(user, worldVector.before, blockData, parsed));
+                }
+                catch (BlockAlreadyPlacedException e) {
+                    ChatLogger.logConsole("Block at " + e.getLocation().toString() + " was already placed. Player: " + e.getPlacer());
+                }
             }
         }
     }
 
-    public void savePlayer(File file, User user) throws IOException, FailedFileCreationException {
+    public boolean savePlayer(File file, User user) throws IOException, FailedFileCreationException {
         if (!file.exists()) {
             if (!file.createNewFile()) {
                 throw new FailedFileCreationException("Failed to create user data file for player: " + user);
             }
         }
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
-
         ServerBlockTracker tracker = ServerBlockTracker.getInstance();
         UserDataManager manager = tracker.getUserManager();
-        for(MultiMapEntrySet<BlockDataPair, TrackedBlock> limiters : manager.getBlockData(user).getBlockEntries()) {
-            BlockDataPair blockData = limiters.getKey();
-            Collection<TrackedBlock> blocks = limiters.getValues();
-            if (blocks.size() > 0) {
-                writer.append(blockData.toString()).append(BlockSplitter);
-                for (TrackedBlock block : blocks) {
-                    writer.append(block.getWorldName()).
-                            append(WorldVectorSplit).
-                            append(Vector3.serialise(block.getLocation())).
-                            append(LocationSplit);
+        UserBlockData data = manager.getBlockData(user);
+        if (data.hasDataChanged()) {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+            for (MultiMapEntrySet<BlockDataPair, TrackedBlock> limiters : data.getBlockEntries()) {
+                BlockDataPair blockData = limiters.getKey();
+                Collection<TrackedBlock> blocks = limiters.getValues();
+                if (blocks.size() > 0) {
+                    writer.append(blockData.toString()).append(BlockSplitter);
+                    for (TrackedBlock block : blocks) {
+                        writer.append(block.getWorldName()).
+                                append(WorldVectorSplit).
+                                append(Vector3.serialise(block.getLocation())).
+                                append(LocationSplit);
+                    }
+                    writer.write('\n');
                 }
-                writer.write('\n');
             }
+            writer.close();
+            data.setDataChanged(false);
+            return true;
         }
-
-        writer.close();
+        else {
+            return false;
+        }
     }
 
     /**
      * gets whatever world the block is in, and "places" it in that world
      * @param block The block to be placed
      */
-    public void loadTrackedBlock(TrackedBlock block) {
+    public void loadTrackedBlock(TrackedBlock block) throws BlockAlreadyPlacedException {
         this.serverBlockTracker.getWorldTracker(block.getWorldName()).placeBlock(block);
     }
 
     public void loadTrackedBlocks(WorldBlockTracker worldBlockTracker, ArrayList<TrackedBlock> blocks) {
         for(TrackedBlock block : blocks) {
-            worldBlockTracker.placeBlock(block);
+            try {
+                worldBlockTracker.placeBlock(block);
+            }
+            catch (BlockAlreadyPlacedException e) {
+
+            }
         }
     }
 }

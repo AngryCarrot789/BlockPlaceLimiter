@@ -2,6 +2,7 @@ package reghzy.blocklimiter;
 
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+import reghzy.blocklimiter.command.utils.MainCommandExecutor;
 import reghzy.blocklimiter.config.ConfigManager;
 import reghzy.blocklimiter.config.FileHelper;
 import reghzy.blocklimiter.limit.LimitManager;
@@ -19,6 +20,9 @@ import javax.naming.OperationNotSupportedException;
 public class BlockPlaceLimiterPlugin extends JavaPlugin {
     public static final String ChatPrefix = ChatColor.AQUA + "[BlockLimit]" + ChatColor.RESET;
     public static BlockPlaceLimiterPlugin instance;
+
+    public static final String CommandsPermission = "blocklimit.perms.commands";
+    public static final String DisplayLimiterPermission = "blocklimit.perms.commands.display";
 
     private ServerBlockTracker serverBlockTracker;
     private LimitManager limitManager;
@@ -60,6 +64,10 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
         this.worldListener = new WorldListener(ServerBlockTracker.getInstance(), this);
         this.saveTask = new ConfigSaveTask(this, ServerBlockTracker.getInstance());
         this.saveTask.restartTask();
+
+        MainCommandExecutor commandExecutor = new MainCommandExecutor();
+        getCommand("blockplacelimiter").setExecutor(commandExecutor);
+        getCommand("blockplacelimiter").setTabCompleter(commandExecutor);
 
         ChatLogger.logPlugin("BlockPlaceLimiter v1.0.0 enabled!");
     }

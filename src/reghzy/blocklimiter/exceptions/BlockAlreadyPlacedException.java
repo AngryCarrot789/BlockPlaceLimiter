@@ -3,7 +3,7 @@ package reghzy.blocklimiter.exceptions;
 import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.track.world.Vector3;
 
-public class BlockAlreadyPlacedException extends RuntimeException {
+public class BlockAlreadyPlacedException extends Exception {
     private final Vector3 location;
     private final User placer;
 

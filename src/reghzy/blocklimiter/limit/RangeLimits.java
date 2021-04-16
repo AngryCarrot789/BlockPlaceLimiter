@@ -3,7 +3,9 @@ package reghzy.blocklimiter.limit;
 import reghzy.blocklimiter.track.utils.IntegerRange;
 import reghzy.blocklimiter.track.utils.PermissionMessagePair;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 public class RangeLimits {
     private final HashMap<IntegerRange, PermissionMessagePair> permissions;
@@ -18,6 +20,10 @@ public class RangeLimits {
 
     public PermissionMessagePair getPermission(IntegerRange range) {
         return this.permissions.get(range);
+    }
+
+    public Collection<Map.Entry<IntegerRange, PermissionMessagePair>> getEntrySets() {
+        return permissions.entrySet();
     }
 
     public void addPermission(IntegerRange range, PermissionMessagePair permission) {

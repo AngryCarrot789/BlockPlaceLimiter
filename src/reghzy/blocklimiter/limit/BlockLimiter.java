@@ -99,6 +99,10 @@ public class BlockLimiter {
         return ignore;
     }
 
+    public boolean containsSpecificMetaLimit(int data) {
+        return this.metadata.containsKey(data);
+    }
+
     public MetaLimiter getIgnoreMeta() {
         return this.metadata.get(-1);
     }

@@ -58,8 +58,7 @@ public class LimitManager {
                         }
                     }
                     catch (Exception e) {
-                        ChatLogger.logPlugin("Failed to create a limit from the config");
-                        e.printStackTrace();
+                        ChatLogger.logConsole(e.getMessage());
                     }
                 }
             }
@@ -79,10 +78,10 @@ public class LimitManager {
             return false;
 
         try {
-            return ServerBlockTracker.getInstance().shouldCancelBlockBreak(player, block, metaLimiter);
+            return ServerBlockTracker.getInstance().shouldCancelBlockBreak(player, block, metaLimiter, true);
         }
         catch (BlockAlreadyBrokenException e) {
-            ChatLogger.logConsole(e.getMessage());
+            ChatLogger.logConsole("Exception: " + e.getMessage());
         }
 
         return false;
@@ -101,10 +100,10 @@ public class LimitManager {
             return false;
 
         try {
-            return ServerBlockTracker.getInstance().shouldCancelBlockPlace(player, block, metaLimiter);
+            return ServerBlockTracker.getInstance().shouldCancelBlockPlace(player, block, metaLimiter, true);
         }
         catch (BlockAlreadyPlacedException e) {
-            e.printStackTrace();
+            ChatLogger.logConsole("Exception: " + e.getMessage());
         }
 
         return false;

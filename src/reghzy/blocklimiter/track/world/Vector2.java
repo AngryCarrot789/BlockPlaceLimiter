@@ -19,6 +19,10 @@ public class Vector2 {
         this(vector3.x, vector3.z);
     }
 
+    public Vector3 toVector3(int y) {
+        return new Vector3(this.x, y, this.z);
+    }
+
     public String toString() {
         return x + " " + z;
     }

@@ -1,9 +1,11 @@
 package reghzy.blocklimiter.track.world;
 
+import reghzy.blocklimiter.exceptions.BlockAlreadyBrokenException;
+import reghzy.blocklimiter.exceptions.BlockAlreadyPlacedException;
 import reghzy.blocklimiter.track.block.TrackedBlock;
 import reghzy.blocklimiter.track.user.User;
-import reghzy.blocklimiter.utils.logs.ChatLogger;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 public class HeightLayerTracker {
@@ -25,37 +27,50 @@ public class HeightLayerTracker {
         return getBlock(location).getOwner();
     }
 
-    public void placeBlock(TrackedBlock block, Vector2 location) {
+    /**
+     * Returns the block that was placed. Throws a BlockAlreadyPlacedException if... well it was already placed due to a bug
+     * @param block
+     * @param location
+     * @return
+     */
+    public TrackedBlock placeBlock(TrackedBlock block, Vector2 location) throws BlockAlreadyPlacedException {
         block.getLocation().set(location.x, this.y, location.z);
+        block.getOwner().getData().addBlock(block);
         TrackedBlock existingBlock = this.blocks.put(location, block);
         if (existingBlock == null)
-            return;
+            return block;
 
-        ChatLogger.logConsole("A block already exists at: " + location.toString());
+        throw new BlockAlreadyPlacedException(block.getLocation(), existingBlock.getOwner());
     }
 
-    public void placeBlock(TrackedBlock block, int x, int z) {
+    public TrackedBlock placeBlock(TrackedBlock block, int x, int z) throws BlockAlreadyPlacedException {
         block.getLocation().set(x, this.y, z);
-        placeBlock(block, new Vector2(x, z));
+        return placeBlock(block, new Vector2(x, z));
     }
 
-    public void placeBlock(TrackedBlock block) {
-        placeBlock(block, block.getLocation().toVector2());
+    public TrackedBlock placeBlock(TrackedBlock block) throws BlockAlreadyPlacedException {
+        return placeBlock(block, block.getLocation().toVector2());
     }
 
-    public TrackedBlock breakBlock(Vector2 location) {
+    public TrackedBlock breakBlock(Vector2 location) throws BlockAlreadyBrokenException {
         TrackedBlock existingBlock = this.blocks.remove(location);
         if (existingBlock == null) {
-            ChatLogger.logConsole("A block did not exist at: " + location.toString());
+            throw new BlockAlreadyBrokenException(location.toVector3(this.y), User.unknownUser());
         }
+
+        existingBlock.getOwner().getData().removeBlock(existingBlock);
         return existingBlock;
     }
 
-    public TrackedBlock breakBlock(int x, int z) {
+    public TrackedBlock breakBlock(int x, int z) throws BlockAlreadyBrokenException {
         return breakBlock(new Vector2(x, z));
     }
 
-    public TrackedBlock breakBlock(TrackedBlock trackedBlock) {
+    public TrackedBlock breakBlock(TrackedBlock trackedBlock) throws BlockAlreadyBrokenException {
         return breakBlock(trackedBlock.getLocation().toVector2());
+    }
+
+    public Collection<TrackedBlock> getBlocks() {
+        return this.blocks.values();
     }
 }

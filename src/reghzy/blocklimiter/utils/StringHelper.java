@@ -2,6 +2,8 @@ package reghzy.blocklimiter.utils;
 
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.utils.IntegerRange;
+import sun.font.TrueTypeGlyphMapper;
+import sun.misc.FloatingDecimal;
 
 public class StringHelper {
     public boolean isEmpty(String string) {
@@ -61,6 +63,15 @@ public class StringHelper {
         return isNegative ? result : -result;
     }
 
+    public static Double parseDouble(String stringValue) {
+        try {
+            return Double.parseDouble(stringValue);
+        }
+        catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     public static String getContentAfterSplitterIndex(String content, char splitter, int splitIndex, int startIndex) {
         boolean next = false;
         for (int i = startIndex, last = 0, curr = -1, len = content.length(), lenIndex = len - 1; i < content.length(); i++) {
@@ -110,12 +121,12 @@ public class StringHelper {
             return string;
     }
 
-    public static String joinArray(String[] args, int offset, char joinCharacter) {
-        if ((args == null) || (offset < 0) || (offset >= args.length))
+    public static String joinArray(String[] args, int startIndex, char joinCharacter) {
+        if ((args == null) || (startIndex < 0) || (startIndex >= args.length))
             return null;
 
         StringBuilder string = new StringBuilder(args.length);
-        for (int i = offset, lenIndex = args.length - 1; i < args.length; i++) {
+        for (int i = startIndex, lenIndex = args.length - 1; i < args.length; i++) {
             if (i == lenIndex) {
                 string.append(args[i]);
             }
@@ -126,12 +137,12 @@ public class StringHelper {
         return string.toString();
     }
 
-    public static String joinArray(String[] args, int offset, String joinText) {
-        if ((args == null) || (offset < 0) || (offset >= args.length))
+    public static String joinArray(String[] args, int startOffset, String joinText) {
+        if ((args == null) || (startOffset < 0) || (startOffset >= args.length))
             return null;
 
         StringBuilder string = new StringBuilder(args.length);
-        for (int i = offset, lenIndex = args.length - 1; i < args.length; i++) {
+        for (int i = startOffset, lenIndex = args.length - 1; i < args.length; i++) {
             if (i == lenIndex) {
                 string.append(args[i]);
             }

@@ -45,9 +45,9 @@ public class ConfigSaveTask implements Runnable {
 
     @Override
     public void run() {
-        Debugger.log("Saving player data...");
         try {
-            serverBlockTracker.savePlayerData(PlayerDataLoader.PlayerDataFolder);
+            int saved = serverBlockTracker.savePlayerData(PlayerDataLoader.PlayerDataFolder);
+            Debugger.log("Saved " + saved + " user's data");
         }
         catch (IOException ioException) {
             ioException.printStackTrace();
@@ -55,6 +55,5 @@ public class ConfigSaveTask implements Runnable {
         catch (FailedFileCreationException e) {
             e.printStackTrace();
         }
-        Debugger.log("Saved! player data...");
     }
 }

@@ -72,7 +72,7 @@ public class MetaLimiter {
                 return true;
             }
 
-            Debugger.log(player.getName() + " couldn't place a block. Total placed: " + currentlyPlaced);
+            Debugger.log(player.getName() + " Failed to place a block. Total placed: " + currentlyPlaced);
             player.sendMessage(Translator.translateWildcards(pair.denyMessage, player));
             return false;
         }
@@ -80,8 +80,8 @@ public class MetaLimiter {
         return false;
     }
 
-    public boolean canPlayerBreak() {
-        return allowOthersToBreakOwnerBlock;
+    public RangeLimits getRangeLimits() {
+        return this.rangeLimits;
     }
 
     /**

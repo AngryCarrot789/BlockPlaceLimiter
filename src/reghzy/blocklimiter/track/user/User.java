@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 import reghzy.blocklimiter.track.ServerBlockTracker;
 
 public class User {
+    private static final User unknownUser = new User("(Unknown)");
+
     private final String name;
 
     protected User(String name) {
@@ -21,6 +23,10 @@ public class User {
 
     public UserBlockData getData() {
         return ServerBlockTracker.getInstance().getUserManager().getBlockData(this);
+    }
+
+    public static User unknownUser() {
+        return unknownUser;
     }
 
     @Override

@@ -38,6 +38,28 @@ public class Translator {
         return "";
     }
 
+    public static String translateColourCode(char character, String text) {
+        final String codes = "0123456789abcdefklmnor";
+        char[] chars = text.toCharArray();
+        StringBuilder string = new StringBuilder(chars.length);
+        for(int i = 0, len = chars.length, lenIndex = len - 1; i < len; i++) {
+            char c = chars[i];
+            if (c == character) {
+                if (i == lenIndex) {
+                    string.append(c);
+                    return string.toString();
+                }
+                if (StringHelper.containsChar(codes, chars[++i])) {
+                    string.append((char)167).append(chars[i]);
+                }
+            }
+            else {
+                string.append(c);
+            }
+        }
+        return string.toString();
+    }
+
     private static String nullCheckPermission(String permission) {
         if (permission == null)
             return "[No permission]";
