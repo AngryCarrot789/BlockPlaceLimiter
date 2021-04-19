@@ -1,22 +1,21 @@
 package reghzy.blocklimiter.track.user;
 
 import org.bukkit.entity.Player;
-import reghzy.blocklimiter.track.ServerBlockTracker;
+import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.utils.logs.ChatLogger;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class UserDataManager {
-    private final ServerBlockTracker serverBlockTracker;
+    private final ServerTracker serverTracker;
     private final HashMap<String, User> users;
     private final HashMap<User, UserBlockData> userData;
 
-    public UserDataManager(ServerBlockTracker serverBlockTracker) {
-        this.serverBlockTracker = serverBlockTracker;
+    public UserDataManager(ServerTracker serverTracker) {
+        this.serverTracker = serverTracker;
         this.users = new HashMap<String, User>(40);
         this.userData = new HashMap<User, UserBlockData>(40);
     }

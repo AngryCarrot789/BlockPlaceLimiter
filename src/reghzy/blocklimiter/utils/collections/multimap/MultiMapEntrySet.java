@@ -3,9 +3,9 @@ package reghzy.blocklimiter.utils.collections.multimap;
 import java.util.Collection;
 
 /**
- *
- * @param <K>
- * @param <V>
+ * Contains an entry for a multimap; a key and the values
+ * @param <K> The key type
+ * @param <V> The value type
  */
 public class MultiMapEntrySet<K,V> {
     private final K key;

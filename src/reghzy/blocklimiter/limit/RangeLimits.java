@@ -18,7 +18,7 @@ public class RangeLimits {
         this.permissions = new HashMap<IntegerRange, RangeLimit>(4);
     }
 
-    public RangeLimit getPermission(IntegerRange range) {
+    public RangeLimit getRangeLimit(IntegerRange range) {
         return this.permissions.get(range);
     }
 

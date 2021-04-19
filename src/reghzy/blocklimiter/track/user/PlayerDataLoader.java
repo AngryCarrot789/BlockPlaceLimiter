@@ -1,14 +1,13 @@
 package reghzy.blocklimiter.track.user;
 
 import org.bukkit.plugin.Plugin;
-import reghzy.blocklimiter.exceptions.BlockAlreadyPlacedException;
 import reghzy.blocklimiter.exceptions.FailedFileCreationException;
 import reghzy.blocklimiter.exceptions.IncorrectDataFormatException;
-import reghzy.blocklimiter.track.ServerBlockTracker;
-import reghzy.blocklimiter.track.block.TrackedBlock;
+import reghzy.blocklimiter.track.ServerTracker;
+import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.world.Vector3;
-import reghzy.blocklimiter.track.world.WorldBlockTracker;
+import reghzy.blocklimiter.track.world.WorldTracker;
 import reghzy.blocklimiter.utils.SplitString;
 import reghzy.blocklimiter.utils.StringHelper;
 import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntrySet;
@@ -31,15 +30,15 @@ public final class PlayerDataLoader {
     private static final char BlockSplitter = '=';
     private static final char LocationSplit = '|';
 
-    private final ServerBlockTracker serverBlockTracker;
+    private final ServerTracker serverTracker;
 
     public static void init(Plugin plugin) {
         PlayerDataFolder = new File(plugin.getDataFolder(), "players");
         PlayerDataFolder.mkdir();
     }
 
-    public PlayerDataLoader(ServerBlockTracker serverBlockTracker) {
-        this.serverBlockTracker = serverBlockTracker;
+    public PlayerDataLoader(ServerTracker serverTracker) {
+        this.serverTracker = serverTracker;
     }
 
     public File getOrCreateUserFile(String username) throws IOException, FailedFileCreationException {
@@ -77,7 +76,7 @@ public final class PlayerDataLoader {
                 throw new IncorrectDataFormatException("The split data for the ID and Metadata was incorrect. Data: " + blockLocationSplit.before);
             }
 
-            User user = serverBlockTracker.getUserManager().getUser(username);
+            User user = serverTracker.getUserManager().getUser(username);
             BlockDataPair blockData = new BlockDataPair(StringHelper.parseInteger(block.before), StringHelper.parseInteger(block.after));
 
             for(String location : StringHelper.split(blockLocationSplit.after, LocationSplit, 0)) {
@@ -89,17 +88,12 @@ public final class PlayerDataLoader {
                     throw new IncorrectDataFormatException("The split data between the world and location was incorrect. Data: " + location);
                 }
 
-                Vector3 parsed = Vector3.deserialise(worldVector.after);
-                if (parsed == null) {
+                Vector3 parsedLocation = Vector3.deserialise(worldVector.after);
+                if (parsedLocation == null) {
                     throw new IncorrectDataFormatException("A parsed vector3 was not formatted correctly: " + worldVector.after);
                 }
 
-                try {
-                    loadTrackedBlock(new TrackedBlock(user, worldVector.before, blockData, parsed));
-                }
-                catch (BlockAlreadyPlacedException e) {
-                    ChatLogger.logConsole("Block at " + e.getLocation().toString() + " was already placed. Player: " + e.getPlacer());
-                }
+                this.serverTracker.placeNewBlockAt(worldVector.before, user, blockData, parsedLocation);
             }
         }
     }
@@ -111,7 +105,7 @@ public final class PlayerDataLoader {
             }
         }
 
-        ServerBlockTracker tracker = ServerBlockTracker.getInstance();
+        ServerTracker tracker = ServerTracker.getInstance();
         UserDataManager manager = tracker.getUserManager();
         UserBlockData data = manager.getBlockData(user);
         if (data.hasDataChanged()) {
@@ -136,25 +130,6 @@ public final class PlayerDataLoader {
         }
         else {
             return false;
-        }
-    }
-
-    /**
-     * gets whatever world the block is in, and "places" it in that world
-     * @param block The block to be placed
-     */
-    public void loadTrackedBlock(TrackedBlock block) throws BlockAlreadyPlacedException {
-        this.serverBlockTracker.getWorldTracker(block.getWorldName()).placeBlock(block);
-    }
-
-    public void loadTrackedBlocks(WorldBlockTracker worldBlockTracker, ArrayList<TrackedBlock> blocks) {
-        for(TrackedBlock block : blocks) {
-            try {
-                worldBlockTracker.placeBlock(block);
-            }
-            catch (BlockAlreadyPlacedException e) {
-
-            }
         }
     }
 }

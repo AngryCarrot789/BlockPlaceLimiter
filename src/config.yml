@@ -2,9 +2,6 @@
 # also, if this is true, the permission below CANNOT be empty
 AllowPermsPermissionBypass: true
 
-# anyone with this permission bypasses every limit placement
-BypassPermission: 'blocklimiter.bypass'
-
 # save all the configs every 300 ticks
 SaveAllConfigsInterval: 300
 

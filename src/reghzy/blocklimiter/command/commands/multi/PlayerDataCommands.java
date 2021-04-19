@@ -1,32 +1,22 @@
 package reghzy.blocklimiter.command.commands.multi;
 
-import com.sk89q.worldedit.bukkit.selections.Selection;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import reghzy.blocklimiter.BlockPlaceLimiterPlugin;
-import reghzy.blocklimiter.command.utils.CommandArgs;
 import reghzy.blocklimiter.command.CommandLogger;
 import reghzy.blocklimiter.command.ExecutableCommand;
 import reghzy.blocklimiter.command.ExecutableSubCommands;
-import reghzy.blocklimiter.exceptions.BlockAlreadyBrokenException;
-import reghzy.blocklimiter.exceptions.BlockAlreadyPlacedException;
-import reghzy.blocklimiter.track.ServerBlockTracker;
-import reghzy.blocklimiter.track.block.TrackedBlock;
+import reghzy.blocklimiter.command.utils.CommandArgs;
+import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.track.user.UserBlockData;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
+import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.track.world.Vector3;
-import reghzy.blocklimiter.track.world.WorldBlockTracker;
-import reghzy.blocklimiter.utils.WorldEditHelper;
-import reghzy.blocklimiter.utils.WorldHelper;
+import reghzy.blocklimiter.track.world.WorldTracker;
 import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntrySet;
 import reghzy.blocklimiter.utils.permissions.PermissionsHelper;
-
-import java.util.ArrayList;
-import java.util.Locale;
 
 public class PlayerDataCommands extends ExecutableSubCommands {
     public PlayerDataCommands() {
@@ -38,9 +28,7 @@ public class PlayerDataCommands extends ExecutableSubCommands {
         registerCommand("basic", new DisplayBasicInfoSubCommand());
         registerCommand("advanced", new DisplayAdvancedInfoSubCommand());
         registerCommand("setowner", new SetBlockOwnerSubCommand());
-        //registerCommand("setownerwe", new SetBlockOwnerWorldEditSubCommand());
         registerCommand("remove", new RemoveBlockSubCommand());
-        //registerCommand("removewe", new RemoveBlocksWorldEditSubCommand());
     }
 
     private static class DisplayBasicInfoSubCommand extends ExecutableCommand {
@@ -63,7 +51,7 @@ public class PlayerDataCommands extends ExecutableSubCommands {
 
             String name = args.getString(0);
 
-            User user = ServerBlockTracker.getInstance().getUserManager().getUser(name);
+            User user = ServerTracker.getInstance().getUserManager().getUser(name);
             UserBlockData data = user.getData();
             logger.logTranslate("&6Username: &3" + user.getName());
             logger.logTranslate("&6Total placed (unique) limited blocks: &3" + data.getPlacedIDs());
@@ -93,7 +81,7 @@ public class PlayerDataCommands extends ExecutableSubCommands {
             }
 
             String name = args.getString(0);
-            User user = ServerBlockTracker.getInstance().getUserManager().getUser(name);
+            User user = ServerTracker.getInstance().getUserManager().getUser(name);
             UserBlockData data = user.getData();
             logger.logTranslate("&6Username: &3" + user.getName());
             logger.logTranslate("&6Total placed (unique) limited blocks: &3" + data.getPlacedIDs());
@@ -112,9 +100,10 @@ public class PlayerDataCommands extends ExecutableSubCommands {
 
     private static class RemoveBlockSubCommand extends ExecutableCommand {
         public RemoveBlockSubCommand() {
-            super("players", "remove", "<x> <y> <z> [world]",
+            super("players", "remove", "<x> <y> <z> [world] [break]",
                   "Removes a block at the given X/Y/Z coordinates",
-                  "It will automatically get the tracked block at that location and remove it from the owner's counter");
+                  "It will automatically get the tracked block at that location and remove it from the owner's counter",
+                  "(Optionally) break the block in the world");
         }
 
         @Override
@@ -144,67 +133,29 @@ public class PlayerDataCommands extends ExecutableSubCommands {
                 }
             }
 
-            ServerBlockTracker serverBlockTracker = ServerBlockTracker.getInstance();
-            WorldBlockTracker worldBlockTracker = serverBlockTracker.getWorldTracker(worldName);
-            try {
-                TrackedBlock block = worldBlockTracker.breakBlock(location);
-                logger.logTranslate("&6Broke &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
+            Boolean breakBlock = args.getBoolean(4);
+            if (breakBlock == null) {
+                breakBlock = true;
+            }
+
+            ServerTracker serverTracker = ServerTracker.getInstance();
+            TrackedBlock block = serverTracker.breakBlockAt(worldName, location);
+            if (block == null) {
+                logger.logTranslate("&4Failed to break the block. &6There was no tracked block at that location (" + location.formatColour() + "&6)");
+            }
+            else {
+                if (breakBlock) {
+                    World world = block.getBukkitWorld();
+                    if (world != null) {
+                        block.getBlock(world).breakNaturally();
+                    }
+                    logger.logTranslate("&6Broke &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
+                }
+                else {
+                    logger.logTranslate("&6Did not break the block, but did remove it from the player's counter: &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
+                }
                 logger.logTranslate("&6The owner of that block was: &3" + block.getOwner().getName());
             }
-            catch (BlockAlreadyBrokenException e) {
-                logger.logTranslate("&4That block wasnt a tracked block (aka owned by noone)");
-            }
-        }
-    }
-
-    private static class RemoveBlocksWorldEditSubCommand extends ExecutableCommand {
-        public RemoveBlocksWorldEditSubCommand() {
-            super("players", "removewe", "[break]",
-                  "Removes all of the tracked blocks between the min and max values of your worldedit selection (if theyre not tracked, theyre not removed)",
-                  "Optional parameter to break the TRACKED block (set it to air). default value of true");
-        }
-
-        @Override
-        public void execute(CommandSender sender, CommandLogger logger, CommandArgs args) {
-            if (!PermissionsHelper.isConsoleOrHasPermsOrOp(sender, BlockPlaceLimiterPlugin.PlayerEditorPermission)) {
-                logger.logGold("You dont have permission for this command!");
-                return;
-            }
-
-            if (!(sender instanceof Player)) {
-                logger.logConsole("You're not a player lol");
-                return;
-            }
-
-            Boolean breakBlocks = args.getBoolean(0);
-            if (breakBlocks == null) {
-                breakBlocks = true;
-            }
-
-            Selection selection = WorldEditHelper.getPlayerSelection((Player) sender);
-            if (selection == null) {
-                logger.logTranslate("You haven't selected any blocks");
-                return;
-            }
-
-            //Location pos = selection.getMinimumPoint();
-            //if (selection == null) {
-            //    logger.logTranslate("You havent selected a block: minimum po");
-            //    return;
-            //}
-            //
-            //String worldName = .getWorld().getName();
-            //Vector3 location = new Vector3(selection.getMinimumPoint());
-            //ServerBlockTracker serverBlockTracker = ServerBlockTracker.getInstance();
-            //WorldBlockTracker worldBlockTracker = serverBlockTracker.getWorldTracker(worldName);
-            //try {
-            //    TrackedBlock block = worldBlockTracker.breakBlock(location);
-            //    logger.logTranslate("&6Broke &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
-            //    logger.logTranslate("&6The owner of that block was: &3" + block.getOwner().getName());
-            //}
-            //catch (BlockAlreadyBrokenException e) {
-            //    logger.logTranslate("&4That block wasnt a tracked block (aka owned by noone)");
-            //}
         }
     }
 
@@ -248,103 +199,26 @@ public class PlayerDataCommands extends ExecutableSubCommands {
                 }
             }
 
-            ServerBlockTracker serverBlockTracker = ServerBlockTracker.getInstance();
-            WorldBlockTracker worldBlockTracker = serverBlockTracker.getWorldTracker(worldName);
-            if (worldBlockTracker.getBlock(location) == null) {
+            ServerTracker serverTracker = ServerTracker.getInstance();
+            WorldTracker worldTracker = serverTracker.getWorldTracker(worldName);
+            if (worldTracker.getBlock(location) == null) {
                 logger.logTranslate("&4That block wasnt a tracked block (aka owned by noone)");
                 return;
             }
 
-            TrackedBlock block;
-            try {
-                block = worldBlockTracker.breakBlock(location);
+            TrackedBlock block = serverTracker.breakBlockAt(worldName, location);
+            if (block == null) {
+                logger.logTranslate("&6That block wasn't a tracked block (it might be limited, but wasn't tracked)");
+                return;
+            }
+            else {
                 logger.logTranslate("&6Broke &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
                 logger.logTranslate("&6The owner of that block was: &3" + block.getOwner().getName());
             }
-            catch (BlockAlreadyBrokenException e) {
-                logger.logTranslate("&4That block wasnt a tracked block (aka owned by noone)");
-                return;
-            }
 
-            try {
-                block = serverBlockTracker.placeBlockAt(worldBlockTracker, serverBlockTracker.getUserManager().getUser(playerName), block.getBlockData(), block.getLocation());
-                logger.logTranslate("&6Placed &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
-                logger.logTranslate("&6The owner of that block is now: &3" + block.getOwner().getName());
-            }
-            catch (BlockAlreadyPlacedException e) {
-                logger.logTranslate("&4That block was already placed");
-                return;
-            }
-        }
-    }
-
-    private static class SetBlockOwnerWorldEditSubCommand extends ExecutableCommand {
-        public SetBlockOwnerWorldEditSubCommand() {
-            super("players", "setownerwe", "<player name>", "Sets the owner of the blocks you selected in your worldedit selection as the given player (must be their exact name)");
-        }
-
-        @Override
-        public void execute(CommandSender sender, CommandLogger logger, CommandArgs args) {
-            if (!PermissionsHelper.isConsoleOrHasPermsOrOp(sender, BlockPlaceLimiterPlugin.PlayerEditorPermission)) {
-                logger.logGold("You dont have permission for this command!");
-                return;
-            }
-
-            if (!(sender instanceof Player)) {
-                logger.logConsole("You're not a player lol");
-                return;
-            }
-
-            String username = args.getString(0);
-            if (username == null) {
-                logger.logConsole("You haven't provided a username");
-                return;
-            }
-
-            Selection selection = WorldEditHelper.getPlayerSelection((Player) sender);
-            if (selection == null) {
-                logger.logTranslate("You haven't selected any blocks");
-                return;
-            }
-
-            ArrayList<Block> blocks = WorldHelper.blocksBetweenSelection(selection);
-            if (blocks == null || blocks.size() == 0) {
-                logger.logTranslate("&6You havent selected any blocks");
-                return;
-            }
-
-            World world = ((Player) sender).getWorld();
-            ServerBlockTracker serverBlockTracker = ServerBlockTracker.getInstance();
-            WorldBlockTracker worldBlockTracker = serverBlockTracker.getWorldTracker(world);
-
-            User user = serverBlockTracker.getUserManager().getUser(username);
-
-            for (Block bukkitBlock : blocks) {
-                TrackedBlock block = worldBlockTracker.getBlock(bukkitBlock);
-                if (block == null) {
-                    continue;
-                }
-
-                Vector3 location = block.getLocation();
-                try {
-                    block = worldBlockTracker.breakBlock(location);
-                    logger.logTranslate("&6Broke &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
-                    logger.logTranslate("&6The owner of that block was: &3" + block.getOwner().getName());
-                }
-                catch (BlockAlreadyBrokenException e) {
-
-                }
-
-                try {
-                    block = serverBlockTracker.placeBlockAt(worldBlockTracker, user, block.getBlockData(), block.getLocation());
-                    logger.logTranslate("&6Placed &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
-                    logger.logTranslate("&6The owner of that block is now: &3" + block.getOwner().getName());
-                }
-                catch (BlockAlreadyPlacedException e) {
-                    logger.logTranslate("&4That block was already placed");
-                    return;
-                }
-            }
+            block = serverTracker.placeNewBlockAt(worldName, serverTracker.getUserManager().getUser(playerName), block.getBlockData(), block.getLocation());
+            logger.logTranslate("&6Placed &3" + block.getBlockData().toString() + " &6at " + block.getLocation().formatColour() + " &6in world &3" + block.getWorldName());
+            logger.logTranslate("&6The owner of that block is now: &3" + block.getOwner().getName());
         }
     }
 }

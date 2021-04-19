@@ -3,7 +3,7 @@ package reghzy.blocklimiter.utils.debug;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import reghzy.blocklimiter.track.block.TrackedBlock;
+import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.utils.logs.ChatFormat;
 import reghzy.blocklimiter.utils.logs.ChatLogger;

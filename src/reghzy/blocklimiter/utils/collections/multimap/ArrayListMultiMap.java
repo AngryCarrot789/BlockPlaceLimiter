@@ -3,9 +3,10 @@ package reghzy.blocklimiter.utils.collections.multimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
- * A HashSetMultiMap is a collection of keys, which key to an arraylist, but with functions to make managing that easier
+ * A ArrayListMultiMap is a collection of keys, which key to an arraylist, but with functions to make managing that easier
  *
  * @param <K> The Key type
  * @param <V> The Value type (this doesn't have to be a collection, but it will be an ArrayList in the background)
@@ -26,7 +27,6 @@ public class ArrayListMultiMap<K, V> implements MultiMap<K,V> {
     }
 
     public ArrayList<V> remove(K key) {
-        getOrCreateValues(key).clear();
         return map.remove(key);
     }
 
@@ -35,28 +35,27 @@ public class ArrayListMultiMap<K, V> implements MultiMap<K,V> {
     }
 
     public V removeAt(K key, int index) {
-         return getOrCreateValues(key).remove(index);
-    }
-
-    public ArrayList<V> getValues(K key) {
-        return getOrCreateValues(key);
+        return getOrCreateValues(key).remove(index);
     }
 
     public Collection<K> getKeys() {
         return map.keySet();
     }
 
-    public boolean containsKey(K key) {
-        return this.map.containsKey(key);
+    public ArrayList<V> getValues(K key) {
+        return getOrCreateValues(key);
     }
 
     public boolean contains(K key, V value) {
-        ArrayList<V> values = map.get(key);
-        return values != null && values.contains(value);
+        return getOrCreateValues(key).contains(value);
+    }
+
+    public boolean containsKey(K key) {
+        return map.containsKey(key);
     }
 
     public boolean containsValue(V value) {
-        for(K key : this.getKeys()) {
+        for(K key : getKeys()) {
             if (getValues(key).contains(value))
                 return true;
         }
@@ -64,18 +63,28 @@ public class ArrayListMultiMap<K, V> implements MultiMap<K,V> {
     }
 
     public int keysSize() {
-        return this.map.size();
+        return map.size();
     }
 
     public int valuesSize(K key) {
         ArrayList<V> values = getValues(key);
         if (values == null)
             return 0;
+
         return values.size();
     }
 
+    @Override
+    public Map<K, Collection<V>> asMap() {
+        HashMap<K, Collection<V>> map = new HashMap<K, Collection<V>>(keysSize());
+        for(K key : getKeys()) {
+            map.put(key, getValues(key));
+        }
+        return map;
+    }
+
     public ArrayList<Collection<V>> getAllValues() {
-        ArrayList<Collection<V>> valuesTotal = new ArrayList<Collection<V>>(this.map.size() * 4);
+        ArrayList<Collection<V>> valuesTotal = new ArrayList<Collection<V>>(keysSize() * 4);
         for(K key : getKeys()) {
             valuesTotal.add(getValues(key));
         }
@@ -83,7 +92,7 @@ public class ArrayListMultiMap<K, V> implements MultiMap<K,V> {
     }
 
     public Collection<MultiMapEntrySet<K, V>> getEntrySet() {
-        Collection<MultiMapEntrySet<K, V>> entrySets = new ArrayList<MultiMapEntrySet<K, V>>(this.map.size());
+        Collection<MultiMapEntrySet<K, V>> entrySets = new ArrayList<MultiMapEntrySet<K, V>>(keysSize());
         for(K key : this.getKeys()) {
             entrySets.add(new MultiMapEntrySet<K, V>(key, getOrCreateValues(key)));
         }

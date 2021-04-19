@@ -1,6 +1,9 @@
 package reghzy.blocklimiter.utils.collections.multimap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * A HashSetMultiMap is a collection of keys, which key to a hashset, but with functions to make managing that easier
@@ -23,21 +26,20 @@ public class HashSetMultiMap<K, V> implements MultiMap<K, V> {
         return getOrCreateValues(key).addAll(values);
     }
 
-    public Collection<V> remove(K key) {
-        getOrCreateValues(key).clear();
-        return Arrays.asList((V[]) map.remove(key).toArray());
+    public HashSet<V> remove(K key) {
+        return map.remove(key);
     }
 
     public boolean remove(K key, V value) {
         return getOrCreateValues(key).remove(value);
     }
 
-    public HashSet<V> getValues(K key) {
-        return getOrCreateValues(key);
-    }
-
     public Collection<K> getKeys() {
         return map.keySet();
+    }
+
+    public HashSet<V> getValues(K key) {
+        return getOrCreateValues(key);
     }
 
     public boolean containsKey(K key) {
@@ -45,8 +47,7 @@ public class HashSetMultiMap<K, V> implements MultiMap<K, V> {
     }
 
     public boolean contains(K key, V value) {
-        HashSet<V> values = map.get(key);
-        return values != null && values.contains(value);
+        return getOrCreateValues(key).contains(value);
     }
 
     public boolean containsValue(V value) {
@@ -62,18 +63,24 @@ public class HashSetMultiMap<K, V> implements MultiMap<K, V> {
     }
 
     public int valuesSize(K key) {
-        HashSet<V> values = map.get(key);
-        if (values == null)
-            return 0;
-        return values.size();
+        return getOrCreateValues(key).size();
+    }
+
+    @Override
+    public HashMap<K, Collection<V>> asMap() {
+        HashMap<K, Collection<V>> map = new HashMap<K, Collection<V>>(keysSize());
+        for(K key : getKeys()) {
+            map.put(key, getValues(key));
+        }
+        return map;
     }
 
     public ArrayList<Collection<V>> getAllValues() {
-        ArrayList<Collection<V>> valuesTotal = new ArrayList<Collection<V>>(this.map.size() * 4);
+        ArrayList<Collection<V>> valuesCollection = new ArrayList<Collection<V>>(this.map.size() * 4);
         for (K key : getKeys()) {
-            valuesTotal.add(getValues(key));
+            valuesCollection.add(getValues(key));
         }
-        return valuesTotal;
+        return valuesCollection;
     }
 
     public Collection<MultiMapEntrySet<K, V>> getEntrySet() {

@@ -10,7 +10,7 @@ import reghzy.blocklimiter.listeners.BlockListener;
 import reghzy.blocklimiter.listeners.PlayerListener;
 import reghzy.blocklimiter.listeners.WorldListener;
 import reghzy.blocklimiter.tasks.WorldSyncroniseTask;
-import reghzy.blocklimiter.track.ServerBlockTracker;
+import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.tasks.ConfigSaveTask;
 import reghzy.blocklimiter.track.user.PlayerDataLoader;
 import reghzy.blocklimiter.utils.WorldEditHelper;
@@ -30,7 +30,7 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
     public static final String ReloadConfigsPermission = "blocklimit.perms.commands.reload";
     public static final String PlayerEditorPermission = "blocklimit.perms.commands.playeredit";
 
-    private ServerBlockTracker serverBlockTracker;
+    private ServerTracker serverTracker;
     private LimitManager limitManager;
     private BlockListener blockListener;
     private PlayerListener playerListener;
@@ -57,7 +57,7 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
 
         try {
             ChatLogger.logPlugin("Initialising Server Block Tracker...");
-            this.serverBlockTracker = new ServerBlockTracker();
+            this.serverTracker = new ServerTracker();
         }
         catch (OperationNotSupportedException e) {
             ChatLogger.logPlugin("Singleton Server Block Tracker already initialised! This is a bug, or this plugin was enabled externally");
@@ -73,9 +73,9 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
 
         ChatLogger.logPlugin("Initialising listeners...");
         this.blockListener = new BlockListener(LimitManager.getInstance(), this);
-        this.playerListener = new PlayerListener(ServerBlockTracker.getInstance(), this);
-        this.worldListener = new WorldListener(ServerBlockTracker.getInstance(), this);
-        this.saveTask = new ConfigSaveTask(this, ServerBlockTracker.getInstance());
+        this.playerListener = new PlayerListener(ServerTracker.getInstance(), this);
+        this.worldListener = new WorldListener(ServerTracker.getInstance(), this);
+        this.saveTask = new ConfigSaveTask(this, ServerTracker.getInstance());
         this.saveTask.restartTask();
         this.worldSyncTask = new WorldSyncroniseTask(this);
         this.worldSyncTask.restartTask();;

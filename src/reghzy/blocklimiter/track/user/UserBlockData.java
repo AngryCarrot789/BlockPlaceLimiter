@@ -1,6 +1,6 @@
 package reghzy.blocklimiter.track.user;
 
-import reghzy.blocklimiter.track.block.TrackedBlock;
+import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.utils.collections.multimap.HashSetMultiMap;
 import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntrySet;

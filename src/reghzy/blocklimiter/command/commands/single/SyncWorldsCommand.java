@@ -6,7 +6,7 @@ import reghzy.blocklimiter.command.utils.CommandArgs;
 import reghzy.blocklimiter.command.CommandLogger;
 import reghzy.blocklimiter.command.ExecutableCommand;
 import reghzy.blocklimiter.track.Synchroniser;
-import reghzy.blocklimiter.track.block.TrackedBlock;
+import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.utils.permissions.PermissionsHelper;
 
 import java.util.ArrayList;

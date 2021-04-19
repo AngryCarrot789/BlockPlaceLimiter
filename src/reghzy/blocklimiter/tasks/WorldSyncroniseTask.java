@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import reghzy.blocklimiter.config.Config;
 import reghzy.blocklimiter.config.ConfigManager;
 import reghzy.blocklimiter.track.Synchroniser;
-import reghzy.blocklimiter.track.block.TrackedBlock;
+import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.utils.logs.ChatLogger;
 
 import java.util.ArrayList;

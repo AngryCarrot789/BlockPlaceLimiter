@@ -1,18 +1,15 @@
 package reghzy.blocklimiter.limit;
 
-import gnu.trove.set.hash.TIntHashSet;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import reghzy.blocklimiter.config.Config;
 import reghzy.blocklimiter.config.ConfigManager;
-import reghzy.blocklimiter.exceptions.BlockAlreadyBrokenException;
-import reghzy.blocklimiter.exceptions.BlockAlreadyPlacedException;
-import reghzy.blocklimiter.track.ServerBlockTracker;
+import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.utils.StringHelper;
-import reghzy.blocklimiter.utils.debug.Debugger;
 import reghzy.blocklimiter.utils.logs.ChatFormat;
 import reghzy.blocklimiter.utils.logs.ChatLogger;
+import reghzy.blocklimiter.utils.permissions.PermissionsHelper;
 
 import javax.naming.OperationNotSupportedException;
 import java.util.HashMap;
@@ -77,14 +74,7 @@ public class LimitManager {
         if (metaLimiter.playerBypassesChecks(player))
             return false;
 
-        try {
-            return ServerBlockTracker.getInstance().shouldCancelBlockBreak(player, block, metaLimiter, true);
-        }
-        catch (BlockAlreadyBrokenException e) {
-            ChatLogger.logConsole("Exception: " + e.getMessage());
-        }
-
-        return false;
+        return ServerTracker.getInstance().shouldCancelBlockBreak(player, block, metaLimiter);
     }
 
     public boolean shouldCancelBlockPlace(Player player, Block block) {
@@ -99,14 +89,10 @@ public class LimitManager {
         if (metaLimiter.playerBypassesChecks(player))
             return false;
 
-        try {
-            return ServerBlockTracker.getInstance().shouldCancelBlockPlace(player, block, metaLimiter, true);
-        }
-        catch (BlockAlreadyPlacedException e) {
-            ChatLogger.logConsole("Exception: " + e.getMessage());
-        }
+        if (PermissionsHelper.hasPermission(player, metaLimiter.bypassPermission))
+            return false;
 
-        return false;
+        return ServerTracker.getInstance().shouldCancelBlockPlace(player, block, metaLimiter);
     }
 
     public void addBlockLimiter(int id, BlockLimiter limiter) {

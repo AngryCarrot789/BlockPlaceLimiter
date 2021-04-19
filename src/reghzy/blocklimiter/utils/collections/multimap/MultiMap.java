@@ -1,9 +1,11 @@
 package reghzy.blocklimiter.utils.collections.multimap;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
- * A multimap is a collection of collections, but with functions to make managing that easier
+ * A multimap is a collection of collections, but with functions to make
+ * managing that easier. They all use Maps (which use hash codes as a key)
  * <p>
  *     e.g. adding values, you only need to specify a key and value, the multimap
  *     will get the collection that the key points to for you, or create it if required
@@ -18,8 +20,8 @@ public interface MultiMap<K,V> {
     Collection<V> remove(K key);
     boolean remove(K key, V value);
 
-    Collection<V> getValues(K key);
     Collection<K> getKeys();
+    Collection<V> getValues(K key);
 
     boolean contains(K key, V value);
     boolean containsKey(K key);
@@ -28,6 +30,7 @@ public interface MultiMap<K,V> {
     int keysSize();
     int valuesSize(K key);
 
+    Map<K, Collection<V>> asMap();
     Collection<Collection<V>> getAllValues();
     Collection<MultiMapEntrySet<K, V>> getEntrySet();
 }

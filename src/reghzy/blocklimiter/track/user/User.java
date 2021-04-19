@@ -2,12 +2,13 @@ package reghzy.blocklimiter.track.user;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import reghzy.blocklimiter.track.ServerBlockTracker;
+import reghzy.blocklimiter.track.ServerTracker;
 
 public class User {
     private static final User unknownUser = new User("(Unknown)");
 
     private final String name;
+    private UserBlockData userData;
 
     protected User(String name) {
         this.name = name;
@@ -22,7 +23,11 @@ public class User {
     }
 
     public UserBlockData getData() {
-        return ServerBlockTracker.getInstance().getUserManager().getBlockData(this);
+        if (userData == null) {
+            userData = ServerTracker.getInstance().getUserManager().getBlockData(this);
+        }
+
+        return userData;
     }
 
     public static User unknownUser() {

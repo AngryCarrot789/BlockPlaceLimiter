@@ -47,6 +47,10 @@ public class Vector3 {
         return world.getBlockAt(this.x, this.y, this.z);
     }
 
+    public Location toBukkitLocation(World world) {
+        return new Location(world, this.x, this.y, this.z);
+    }
+
     public static Vector3 deserialise(String content) {
         String[] split = StringHelper.split(content, ',', 0);
         if (split.length != 3) {

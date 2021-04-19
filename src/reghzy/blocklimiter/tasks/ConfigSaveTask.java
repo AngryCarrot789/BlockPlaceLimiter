@@ -5,25 +5,23 @@ import org.bukkit.plugin.java.JavaPlugin;
 import reghzy.blocklimiter.config.Config;
 import reghzy.blocklimiter.config.ConfigManager;
 import reghzy.blocklimiter.exceptions.FailedFileCreationException;
-import reghzy.blocklimiter.track.ServerBlockTracker;
+import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.track.user.PlayerDataLoader;
 import reghzy.blocklimiter.utils.debug.Debugger;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class ConfigSaveTask implements Runnable {
     private final JavaPlugin plugin;
     private int taskId;
-    private ServerBlockTracker serverBlockTracker;
+    private ServerTracker serverTracker;
     private int delayTicks = 300;
 
     public static final String DelayTicksName = "SaveAllConfigsInterval";
 
-    public ConfigSaveTask(JavaPlugin plugin, ServerBlockTracker serverBlockTracker) {
+    public ConfigSaveTask(JavaPlugin plugin, ServerTracker serverTracker) {
         this.plugin = plugin;
-        this.serverBlockTracker = serverBlockTracker;
+        this.serverTracker = serverTracker;
         loadConfig(ConfigManager.getMainConfig());
     }
 
@@ -48,7 +46,7 @@ public class ConfigSaveTask implements Runnable {
     @Override
     public void run() {
         try {
-            int saved = serverBlockTracker.savePlayerData(PlayerDataLoader.PlayerDataFolder);
+            int saved = serverTracker.savePlayerData(PlayerDataLoader.PlayerDataFolder);
             Debugger.log("Saved " + saved + " user's data");
         }
         catch (IOException ioException) {

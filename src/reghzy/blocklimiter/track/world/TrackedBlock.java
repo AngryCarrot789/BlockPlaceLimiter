@@ -1,14 +1,12 @@
-package reghzy.blocklimiter.track.block;
+package reghzy.blocklimiter.track.world;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import reghzy.blocklimiter.track.ServerBlockTracker;
+import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
-import reghzy.blocklimiter.track.world.HeightLayerTracker;
-import reghzy.blocklimiter.track.world.Vector3;
-import reghzy.blocklimiter.track.world.WorldBlockTracker;
 
 public class TrackedBlock {
     private final User owner;
@@ -16,11 +14,21 @@ public class TrackedBlock {
     private final BlockDataPair blockData;
     private final Vector3 location;
 
-    public TrackedBlock(User owner, String worldName, BlockDataPair blockData, Vector3 location) {
+    private TrackedBlock(User owner, String worldName, BlockDataPair blockData, Vector3 location) {
         this.owner = owner;
         this.worldName = worldName;
         this.blockData = blockData;
         this.location = location;
+    }
+
+    /**
+     * Creates a tracked block, owned by the given owner, placed in the given world name, with the given block ID:Data at the given location
+     * <p>
+     *     This will NOT add the block to the user's data; it will technically be un-owned. there are very little reasons to use this function standalone
+     * </p>
+     */
+    public static TrackedBlock createBlock(User owner, String worldName, BlockDataPair blockData, Vector3 location) {
+        return new TrackedBlock(owner, worldName, blockData, location);
     }
 
     public User getOwner() {
@@ -39,12 +47,8 @@ public class TrackedBlock {
         return this.location;
     }
 
-    public HeightLayerTracker getHeightLayer() {
-        return ServerBlockTracker.getInstance().getWorldTracker(getWorldName()).getLayer(location);
-    }
-
-    public WorldBlockTracker getWorldTracker() {
-        return ServerBlockTracker.getInstance().getWorldTracker(getWorldName());
+    public WorldTracker getWorldTracker() {
+        return ServerTracker.getInstance().getWorldTracker(getWorldName());
     }
 
     public World getBukkitWorld() {
