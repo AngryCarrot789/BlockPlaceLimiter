@@ -1,18 +1,21 @@
 name: BlockPlaceLimiter
-version: 1.0.0
-description: A plugin for limiting what blocks players can place, break or interact with based on permissions
-author: Carrot/REghZy
-main: reghzy.blocklimiter.BlockPlaceLimiterPlugin
+version: 1.4.229
+description: A plugin for limiting the amount of specific blocks players can place based on permissions and alrady placed amounts
+author: 'Carrot/dragonjetz'
+main: dragonjetz.blocklimiter.BlockPlaceLimiterPlugin
 prefix: BlockPlaceLimiter
 softdepend:
   - PermissionsEx
-  - WorldEdit
+  - CarrotTools
 
 permissions:
   blocklimiter.perms.commands:
     default: op
   blocklimiter.perms.commands.reload:
     default: op
+
+  blocklimiter.perms.usercommand.myblocks:
+    default: true
 
 commands:
   blockplacelimiter:
@@ -21,3 +24,8 @@ commands:
     usage: /blockplacementlimiter
     aliases:
       - bpl
+
+  myblocks:
+    permission: blocklimiter.perms.usercommand.myblocks
+    description: Shows all of your placed limited blocks
+    usage: /myblocks

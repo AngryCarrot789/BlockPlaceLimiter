@@ -2,12 +2,12 @@
 # also, if this is true, the permission below CANNOT be empty
 AllowPermsPermissionBypass: true
 
-# save all the configs every 300 ticks
-SaveAllConfigsInterval: 300
+# save all the configs every 100 ticks (if theyve been edited, aka by placing/breaking blocks, etc)
+SaveAllConfigsInterval: 100
 
 # check every 200 ticks in every world to see if any blocks have been
 # unsynced (possibly due to breaking blocks using worldedit)
 # this might be laggy with 1000s of tracked blocks in every world, so
-# make this a high value if you want.
+# make this a high value if you want
 # 6000 = 5 minutes
 SyncWorldsDelay: 200

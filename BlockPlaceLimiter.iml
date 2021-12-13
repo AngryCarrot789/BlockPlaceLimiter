@@ -20,15 +20,14 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="plugin-lib" level="application" />
     <orderEntry type="module-library">
-      <library>
+      <library name="ms-searge-src">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../MinecraftUtils/plugins/api/craftbukkit-1.6.4.jar!/" />
+          <root url="file://$MODULE_DIR$/../../MinecraftUtils/modding/forge/1.6.4/a-mappings/searge/server-and-client/src" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../MinecraftUtils/plugins/api/craftbukkit-1.6.4.jar!/" />
-        </SOURCES>
+        <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
@@ -58,6 +57,26 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../MinecraftUtils/mods/1.6.4/calclavia core-1.2.0.299-main.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Desktop/CarrotTools.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$USER_HOME$/Desktop/CarrotTools.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>

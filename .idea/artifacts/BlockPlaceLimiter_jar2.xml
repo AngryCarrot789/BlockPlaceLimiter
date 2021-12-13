@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="BlockPlaceLimiter:jar">
-    <output-path>$PROJECT_DIR$/../../MinecraftUtils/server/tekkitmain-1.6.4/plugins</output-path>
+  <artifact type="jar" name="BlockPlaceLimiter:jar2">
+    <output-path>$USER_HOME$/Desktop</output-path>
     <root id="archive" name="BlockPlaceLimiter.jar">
       <element id="module-output" name="BlockPlaceLimiter" />
       <element id="file-copy" path="$PROJECT_DIR$/src/config.yml" />

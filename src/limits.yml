@@ -6,6 +6,8 @@
 
     # the permission that, if you have it, you completely bypass the block limit (aka you can place unlimited of this block)
     BypassPermission: 'blocklimit.bypass.quarry'
+    # the permission that lets anyone break the block, even if AllowOthersToBreakOwnerBlock is false
+    BypassBreakPermission: 'blocklimit.adminbreak'
     # the message to send the player if they dont have any permission to place this block (e.g. no perms for 0 to 4, 5 to 8, nor the bypass)
     NoInitialPermissionMessage: '&4You cannot place any quarries'
     # whether to allow other players to break a block owned by someone else 
