@@ -1,12 +1,13 @@
 name: BlockPlaceLimiter
 version: 1.4.229
 description: A plugin for limiting the amount of specific blocks players can place based on permissions and alrady placed amounts
-author: 'Carrot/dragonjetz'
-main: dragonjetz.blocklimiter.BlockPlaceLimiterPlugin
+author: 'Carrot/reghzy'
+main: 'reghzy.blocklimiter.BlockPlaceLimiterPlugin'
 prefix: BlockPlaceLimiter
+depend:
+  - CarrotTools
 softdepend:
   - PermissionsEx
-  - CarrotTools
 
 permissions:
   blocklimiter.perms.commands:
