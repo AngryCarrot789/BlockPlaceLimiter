@@ -5,14 +5,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 import reghzy.api.utils.BaseListener;
 import reghzy.blocklimiter.limit.LimitManager;
 
 public class BlockListener extends BaseListener implements Listener {
     private final LimitManager limitManager;
 
-    public BlockListener(LimitManager limitManager, JavaPlugin plugin) {
+    public BlockListener(LimitManager limitManager, Plugin plugin) {
         super(plugin);
         this.limitManager = limitManager;
         register(this);
@@ -40,4 +40,15 @@ public class BlockListener extends BaseListener implements Listener {
             event.getPlayer().closeInventory();
         }
     }
+
+    // @EventHandler(priority = EventPriority.HIGHEST)
+    // public void onBlockEvent(BlockPhysicsEvent event) {
+    //     if (event.isCancelled()) {
+    //         return;
+    //     }
+    //     if (limitManager.shouldCancelBlockPlace(event.getPlayer(), event.getBlock())) {
+    //         event.setCancelled(true);
+    //         event.getPlayer().closeInventory();
+    //     }
+    // }
 }

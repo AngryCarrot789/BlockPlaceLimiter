@@ -6,14 +6,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 import reghzy.api.utils.BaseListener;
 import reghzy.blocklimiter.track.ServerTracker;
 
 public class PlayerListener extends BaseListener implements Listener {
     private final ServerTracker serverTracker;
 
-    public PlayerListener(ServerTracker serverTracker, JavaPlugin plugin) {
+    public PlayerListener(ServerTracker serverTracker, Plugin plugin) {
         super(plugin);
         this.serverTracker = serverTracker;
         register(this);

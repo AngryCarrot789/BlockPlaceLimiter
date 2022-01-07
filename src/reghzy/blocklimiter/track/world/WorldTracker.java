@@ -29,7 +29,7 @@ public class WorldTracker {
         return getBlock(x, y, z).getOwner();
     }
 
-    public User getOwner(Vector3 vector3) {
+    public User getOwner(BPLVec3i vector3) {
         return getBlock(vector3).getOwner();
     }
 
@@ -41,7 +41,7 @@ public class WorldTracker {
         return placeBlock(block, block.getLocation());
     }
 
-    public TrackedBlock placeBlock(TrackedBlock block, Vector3 vector3) {
+    public TrackedBlock placeBlock(TrackedBlock block, BPLVec3i vector3) {
         return placeBlock(block, vector3.x, vector3.y, vector3.z);
     }
 
@@ -57,7 +57,7 @@ public class WorldTracker {
         return breakBlock(block.getLocation());
     }
 
-    public TrackedBlock breakBlock(Vector3 vector3) {
+    public TrackedBlock breakBlock(BPLVec3i vector3) {
         return breakBlock(vector3.x, vector3.y, vector3.z);
     }
 
@@ -69,11 +69,11 @@ public class WorldTracker {
         return getBlock(block.getX(), block.getY(), block.getZ());
     }
 
-    public TrackedBlock getBlock(Vector3 vector3) {
+    public TrackedBlock getBlock(BPLVec3i vector3) {
         return getBlock(vector3.x, vector3.y, vector3.z);
     }
 
-    public TrackedBlock getBlock(BlockLocation2D location, int y) {
+    public TrackedBlock getBlock(BPLVec2i location, int y) {
         return getBlock(location.x, y, location.z);
     }
 

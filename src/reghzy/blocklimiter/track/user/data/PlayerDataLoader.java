@@ -5,7 +5,7 @@ import reghzy.api.utils.text.RZFormats;
 import reghzy.blocklimiter.exceptions.FailedFileCreationException;
 import reghzy.blocklimiter.exceptions.IncorrectDataFormatException;
 import reghzy.blocklimiter.track.ServerTracker;
-import reghzy.blocklimiter.track.user.User;
+import reghzy.blocklimiter.track.user.UserBlockData;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +24,9 @@ public abstract class PlayerDataLoader {
             return;
         }
 
-        if (!PLAYER_DATA_FOLDER.mkdir())
+        if (!PLAYER_DATA_FOLDER.mkdir()) {
             throw new RuntimeException("Failed to create player data folder!");
+        }
     }
 
     public PlayerDataLoader(ServerTracker serverTracker) {
@@ -61,5 +62,5 @@ public abstract class PlayerDataLoader {
      * @throws IOException If an IO exception occurred while saving the player's data
      * @throws FailedFileCreationException If the file didn't exist, and couldn't be created due to an unknown reason
      */
-    public abstract boolean savePlayer(File file, User user, boolean forceIfUnchanged) throws IOException, FailedFileCreationException;
+    public abstract boolean savePlayer(File file, UserBlockData user, boolean forceIfUnchanged) throws IOException, FailedFileCreationException;
 }

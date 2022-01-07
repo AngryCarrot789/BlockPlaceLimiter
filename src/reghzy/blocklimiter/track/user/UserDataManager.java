@@ -13,13 +13,13 @@ import java.util.HashMap;
 
 public class UserDataManager {
     private final ServerTracker serverTracker;
-    private final HashMap<String, User> users;
-    private final HashMap<User, UserBlockData> userData;
+    private final HashMap<String, User> nameToUser;
+    private final HashMap<User, UserBlockData> userToData;
 
     public UserDataManager(ServerTracker serverTracker) {
         this.serverTracker = serverTracker;
-        this.users = new HashMap<String, User>(40);
-        this.userData = new HashMap<User, UserBlockData>(40);
+        this.nameToUser = new HashMap<String, User>(40);
+        this.userToData = new HashMap<User, UserBlockData>(40);
     }
 
     public User getUser(Player player) {
@@ -41,16 +41,16 @@ public class UserDataManager {
     }
 
     public Collection<User> getUsers() {
-        return this.users.values();
+        return this.nameToUser.values();
     }
 
     public Collection<UserBlockData> getUsersData() {
-        return this.userData.values();
+        return this.userToData.values();
     }
 
     public void unloadUser(User user) {
-        userData.remove(user);
-        users.remove(user.getName());
+        userToData.remove(user);
+        nameToUser.remove(user.getName());
     }
 
     public void loadPlayer(String name) {
@@ -59,21 +59,22 @@ public class UserDataManager {
 
     // if this is called after initialisation, it means the player had nothing placed
     private UserBlockData getOrCreateBlockData(User user) {
-        UserBlockData data = userData.get(user);
+        UserBlockData data = userToData.get(user);
         if (data == null) {
             data = new UserBlockData(user);
-            userData.put(user, data);
+            userToData.put(user, data);
         }
         return data;
     }
 
     // if this is called after initialisation, it means the player had nothing placed and was unloaded
     private User getOrCreateUser(String name) {
-        User user = users.get(name);
+        User user = nameToUser.get(name);
         if (user == null) {
             user = new User(name);
-            users.put(name, user);
+            nameToUser.put(name, user);
         }
+
         return user;
     }
 
@@ -88,7 +89,7 @@ public class UserDataManager {
         }
         catch (IOException ioException) {
             BlockPlaceLimiterPlugin.LOGGER.logFormatConsole("Failed to create user data file for player '{0}'", user.getName());
-            ExceptionHelper.printException(ioException);
+            ExceptionHelper.printException(ioException, BlockPlaceLimiterPlugin.LOGGER, true);
         }
     }
 }

@@ -11,17 +11,17 @@ import reghzy.api.playerdata.serialise.serialisers.BoolRefSerialiser;
 import reghzy.api.utils.ExceptionHelper;
 import reghzy.blocklimiter.command.commands.BPLCommandExecutor;
 import reghzy.blocklimiter.command.commands.MyPlacedBlocksCommand;
+import reghzy.blocklimiter.exceptions.FailedFileCreationException;
 import reghzy.blocklimiter.limit.LimitManager;
 import reghzy.blocklimiter.listeners.BlockListener;
 import reghzy.blocklimiter.listeners.PlayerListener;
-import reghzy.blocklimiter.listeners.WorldListener;
 import reghzy.blocklimiter.tasks.ConfigSaveTask;
 import reghzy.blocklimiter.tasks.WorldSyncroniseTask;
 import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.track.user.data.PlayerDataLoader;
 import reghzy.carrottools.playerdata.SerialisationDataArea;
 
-import javax.naming.OperationNotSupportedException;
+import java.io.IOException;
 
 public class BlockPlaceLimiterPlugin extends JavaPlugin {
     public static BlockPlaceLimiterPlugin instance;
@@ -32,7 +32,6 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
     private LimitManager limitManager;
     private BlockListener blockListener;
     private PlayerListener playerListener;
-    private WorldListener worldListener;
     private ConfigSaveTask saveTask;
     private WorldSyncroniseTask worldSyncTask;
 
@@ -96,7 +95,7 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
             LOGGER.logTranslateConsole("Initialising Server Block Tracker...");
             this.serverTracker = new ServerTracker();
         }
-        catch (OperationNotSupportedException e) {
+        catch (IllegalStateException e) {
             LOGGER.logTranslateConsole("Singleton Server Block Tracker already initialised! This is a bug, or this plugin was enabled externally");
         }
 
@@ -104,14 +103,13 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
             LOGGER.logTranslateConsole("Initialising Limit Manager...");
             this.limitManager = new LimitManager();
         }
-        catch (OperationNotSupportedException e) {
+        catch (IllegalStateException e) {
             LOGGER.logTranslateConsole("Singleton Limit Manager already initialised! This is a bug, or this plugin was enabled externally");
         }
 
         LOGGER.logTranslateConsole("Initialising listeners...");
         this.blockListener = new BlockListener(LimitManager.getInstance(), this);
         this.playerListener = new PlayerListener(ServerTracker.getInstance(), this);
-        this.worldListener = new WorldListener(ServerTracker.getInstance(), this);
         this.saveTask = new ConfigSaveTask(this, ServerTracker.getInstance());
         this.saveTask.startTask();
         this.worldSyncTask = new WorldSyncroniseTask(this);
@@ -135,7 +133,19 @@ public class BlockPlaceLimiterPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        LOGGER.logTranslateConsole("BlockPlaceLimiter v1.0.0 disabled :(");
+        try {
+            serverTracker.savePlayerData(PlayerDataLoader.PLAYER_DATA_FOLDER, false);
+        }
+        catch (FailedFileCreationException e) {
+            LOGGER.logTranslateConsole("Failed to save data; failed to create file");
+            ExceptionHelper.printException(e, LOGGER, true);
+        }
+        catch (IOException e) {
+            LOGGER.logTranslateConsole("Failed to save data; IOException");
+            ExceptionHelper.printException(e, LOGGER, true);
+        }
+
+        LOGGER.logTranslateConsole("BlockPlaceLimiter disabled :(");
     }
 
     public ConfigSaveTask getSaveTask() {

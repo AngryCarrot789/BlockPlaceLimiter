@@ -20,9 +20,9 @@ public class TrackedBlock {
     private final User owner;
     private final String worldName;
     private final BlockDataPair blockData;
-    private final Vector3 location;
+    private final BPLVec3i location;
 
-    private TrackedBlock(User owner, String worldName, BlockDataPair blockData, Vector3 location) {
+    private TrackedBlock(User owner, String worldName, BlockDataPair blockData, BPLVec3i location) {
         this.owner = owner;
         this.worldName = worldName;
         this.blockData = blockData;
@@ -35,7 +35,7 @@ public class TrackedBlock {
      *     This will NOT add the block to the user's data; it will technically be un-owned. there are very little reasons to use this function standalone
      * </p>
      */
-    public static TrackedBlock createBlock(User owner, String worldName, BlockDataPair blockData, Vector3 location) {
+    public static TrackedBlock createBlock(User owner, String worldName, BlockDataPair blockData, BPLVec3i location) {
         return new TrackedBlock(owner, worldName, blockData, location);
     }
 
@@ -55,7 +55,7 @@ public class TrackedBlock {
     }
 
     @Nonnull
-    public Vector3 getLocation() {
+    public BPLVec3i getLocation() {
         return this.location;
     }
 

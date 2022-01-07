@@ -136,6 +136,7 @@ public class BlockLimiter {
         if (ignore == null) {
             return this.metadata.get(data);
         }
+
         return ignore;
     }
 

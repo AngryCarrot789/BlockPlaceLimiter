@@ -2,6 +2,8 @@ package reghzy.blocklimiter.track.utils;
 
 import org.bukkit.block.Block;
 
+import javax.annotation.Nullable;
+
 public class BlockDataPair {
     public final int id;
     public final int data;
@@ -24,12 +26,25 @@ public class BlockDataPair {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof BlockDataPair) {
+    public boolean equals(@Nullable Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        else if (obj instanceof BlockDataPair) {
             BlockDataPair pair = (BlockDataPair) obj;
             return pair.id == this.id && pair.data == this.data;
         }
-        return false;
+        else {
+            return false;
+        }
+    }
+
+    public boolean equals(@Nullable BlockDataPair pair) {
+        if (pair == null) {
+            return false;
+        }
+
+        return pair.id == this.id && pair.data == this.data;
     }
 
     @Override

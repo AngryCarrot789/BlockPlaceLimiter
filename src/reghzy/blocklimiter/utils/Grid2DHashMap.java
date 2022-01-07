@@ -1,4 +1,4 @@
-package reghzy.blocklimiter.utils.collections;
+package reghzy.blocklimiter.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;

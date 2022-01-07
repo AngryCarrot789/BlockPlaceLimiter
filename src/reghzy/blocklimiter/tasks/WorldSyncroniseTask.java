@@ -1,7 +1,7 @@
 package reghzy.blocklimiter.tasks;
 
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 import reghzy.api.commands.utils.RZLogger;
 import reghzy.api.config.Config;
 import reghzy.blocklimiter.BlockPlaceLimiterPlugin;
@@ -11,18 +11,23 @@ import reghzy.blocklimiter.track.world.TrackedBlock;
 import java.util.List;
 
 public class WorldSyncroniseTask implements Runnable {
-    private final JavaPlugin plugin;
-    private int taskId;
+    private static final String DelayTicksName = "SyncWorldsDelay";
+    private static WorldSyncroniseTask instance;
     private static int delayTicks = 300;
+    private final Plugin plugin;
+    private int taskId;
 
-    public static final String DelayTicksName = "SyncWorldsDelay";
 
-    public WorldSyncroniseTask(JavaPlugin plugin) {
+    public WorldSyncroniseTask(Plugin plugin) {
+        instance = this;
         this.plugin = plugin;
     }
 
     public static void loadConfig(Config mainConfig) {
         delayTicks = mainConfig.getInt(DelayTicksName);
+        if (instance != null) {
+            instance.restartTask();
+        }
     }
 
     public void startTask() {

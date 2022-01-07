@@ -58,6 +58,24 @@ public class MetaLimiter {
     /**
      * Emulates trying to place this limiter (aka trying to place currentlyPlaced + 1)
      * <p>
+     * Checks if the player has permission to place this limit block, by checking if
+     * their currentlyPlaced value falls within a range limit they have permission for
+     * </p>
+     * @param currentlyPlaced The number of this limited block the player has placed (the exact number)
+     */
+    public boolean canPlayerPlaceNoLog(String player, String world, int currentlyPlaced) {
+        RangeLimit currentLimit = this.rangeLimits.getRangeLimit(currentlyPlaced);
+        if (currentLimit == null) {
+            return false;
+        }
+
+        RangeLimit nextLimit = this.rangeLimits.getRangeLimit(currentlyPlaced + 1);
+        return nextLimit != null && hasPermission(player, world, nextLimit.permission);
+    }
+
+    /**
+     * Emulates trying to place this limiter (aka trying to place currentlyPlaced + 1)
+     * <p>
      *     Checks if the player has permission to place this limit block, by checking if
      *     their currentlyPlaced value falls within a range limit they have permission for
      * </p>
@@ -136,6 +154,10 @@ public class MetaLimiter {
         return PermissionsEx.getPermissionManager().has(player, bypassPermission);
     }
 
+    public boolean playerBypassesChecks(String world, String name) {
+        return PermissionsEx.getPermissionManager().has(name, bypassPermission, world);
+    }
+
     /**
      * Checks if the player has the given permission. takes into account if the permissions are inverted
      */
@@ -144,6 +166,13 @@ public class MetaLimiter {
             return false;
 
         return PermissionsEx.getPermissionManager().has(player, permission);
+    }
+
+    public static boolean hasPermission(String player, String world, String permission) {
+        if (permission == null)
+            return false;
+
+        return PermissionsEx.getPermissionManager().has(player, permission, world);
     }
 
     // @Nullable
@@ -155,8 +184,7 @@ public class MetaLimiter {
     public int hashCode() {
         // i mean theres 11 bits left (1 << 20) on the end...
         // thats a value around 2000... could possibly stuff
-        // the maximum amount of blocks allowed to be placed in....
-        // eh
+        // the maximum amount of blocks allowed to be placed in.... eh
         return this.dataPair.hashCode();
     }
 }

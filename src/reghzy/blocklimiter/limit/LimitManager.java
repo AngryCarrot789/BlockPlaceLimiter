@@ -9,7 +9,6 @@ import reghzy.api.utils.text.StringHelper;
 import reghzy.blocklimiter.BlockPlaceLimiterPlugin;
 import reghzy.blocklimiter.track.ServerTracker;
 
-import javax.naming.OperationNotSupportedException;
 import java.util.HashMap;
 
 public class LimitManager {
@@ -19,12 +18,12 @@ public class LimitManager {
 
     public static final RZLogger LOGGER = BlockPlaceLimiterPlugin.LOGGER;
 
-    public LimitManager() throws OperationNotSupportedException {
+    public LimitManager() throws IllegalStateException {
         if (LimitManager.instance == null) {
             LimitManager.instance = this;
         }
         else {
-            throw new OperationNotSupportedException("LimitManager was already initialised!");
+            throw new IllegalStateException("LimitManager was already initialised!");
         }
 
         this.limits = new HashMap<Integer, BlockLimiter>(256);

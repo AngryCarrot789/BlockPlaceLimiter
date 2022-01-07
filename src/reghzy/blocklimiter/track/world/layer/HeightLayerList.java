@@ -2,7 +2,7 @@ package reghzy.blocklimiter.track.world.layer;
 
 import org.bukkit.craftbukkit.v1_6_R3.util.UnsafeList;
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
+import reghzy.blocklimiter.track.world.BPLVec3i;
 
 import java.util.Collection;
 
@@ -38,7 +38,7 @@ public class HeightLayerList implements IHeightLayer2D {
     }
 
     @Override
-    public TrackedBlock breakBlock(Vector3 vector) {
+    public TrackedBlock breakBlock(BPLVec3i vector) {
         return breakBlock(vector.x, vector.z);
     }
 
@@ -58,7 +58,7 @@ public class HeightLayerList implements IHeightLayer2D {
         return block;
     }
 
-    public TrackedBlock getBlock(Vector3 location) {
+    public TrackedBlock getBlock(BPLVec3i location) {
         return getBlock(location.x, location.z);
     }
 
@@ -66,7 +66,7 @@ public class HeightLayerList implements IHeightLayer2D {
         UnsafeList<TrackedBlock> trackedBlocks = this.blocks;
         for (int i = 0, size = trackedBlocks.size(); i < size; i++) {
             TrackedBlock block = trackedBlocks.unsafeGet(i);
-            Vector3 location = block.getLocation();
+            BPLVec3i location = block.getLocation();
             if (location.x == x && location.z == z) {
                 return block;
             }

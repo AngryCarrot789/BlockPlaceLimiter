@@ -1,9 +1,9 @@
 package reghzy.blocklimiter.track.user;
 
-import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
-import reghzy.blocklimiter.utils.collections.multimap.HashSetMultiMap;
-import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntry;
+import reghzy.blocklimiter.track.world.TrackedBlock;
+import reghzy.carrottools.utils.collections.multimap.HashSetMultiMap;
+import reghzy.carrottools.utils.collections.multimap.MultiMapEntry;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -20,17 +20,17 @@ public class UserBlockData {
     }
 
     public int getPlacedBlocks(BlockDataPair blockData) {
-        return placedBlocks.valuesSize(blockData);
+        return this.placedBlocks.valuesSize(blockData);
     }
 
     public int getPlacedIDs() {
-        return placedBlocks.keysSize();
+        return this.placedBlocks.keysSize();
     }
 
     public int getTotalPlacedBlocks() {
         int count = 0;
         for(BlockDataPair pair : placedBlocks.getKeys()) {
-            count += placedBlocks.getValues(pair).size();
+            count += placedBlocks.valuesSize(pair);
         }
 
         return count;
@@ -45,12 +45,12 @@ public class UserBlockData {
     }
 
     public boolean addBlock(TrackedBlock block) {
-        hasDataChanged = true;
+        this.hasDataChanged = true;
         return placedBlocks.put(block.getBlockData(), block);
     }
 
     public boolean removeBlock(BlockDataPair dataPair, TrackedBlock location) {
-        hasDataChanged = true;
+        this.hasDataChanged = true;
         return placedBlocks.remove(dataPair, location);
     }
 

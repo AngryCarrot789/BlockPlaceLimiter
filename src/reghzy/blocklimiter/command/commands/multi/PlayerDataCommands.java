@@ -15,9 +15,9 @@ import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.track.user.UserBlockData;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
+import reghzy.blocklimiter.track.world.BPLVec3i;
 import reghzy.blocklimiter.track.world.WorldTracker;
-import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntry;
+import reghzy.carrottools.utils.collections.multimap.MultiMapEntry;
 import reghzy.api.permission.IPermission;
 
 public class PlayerDataCommands extends ExecutableSubCommands {
@@ -148,7 +148,7 @@ public class PlayerDataCommands extends ExecutableSubCommands {
                 breakBlock = false;
             }
 
-            Vector3 loc = new Vector3(x, y, z);
+            BPLVec3i loc = new BPLVec3i(x, y, z);
             ServerTracker serverTracker = ServerTracker.getInstance();
             TrackedBlock block = serverTracker.breakBlockAt(worldName, loc);
             if (block == null) {
@@ -206,7 +206,7 @@ public class PlayerDataCommands extends ExecutableSubCommands {
 
             ServerTracker serverTracker = ServerTracker.getInstance();
             WorldTracker worldTracker = serverTracker.getWorldTracker(worldName);
-            Vector3 loc = new Vector3(x, y, z);
+            BPLVec3i loc = new BPLVec3i(x, y, z);
             if (worldTracker.getBlock(loc) == null) {
                 logger.logFormat("&4The block at &c{0}&4, &a{1}&4, &b{2} &4wasn't a tracked block (no-one owned it)", x, y, z);
                 return;

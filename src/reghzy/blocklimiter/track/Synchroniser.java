@@ -1,12 +1,13 @@
 package reghzy.blocklimiter.track;
 
-import reghzy.api.utils.types.ItemDataPair;
-import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
-import reghzy.blocklimiter.track.world.WorldTracker;
-import net.minecraft.server.v1_6_R3.Chunk;
+import net.minecraft.world.chunk.Chunk;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_6_R3.CraftChunk;
+import reghzy.api.utils.NMSAPI;
+import reghzy.api.utils.types.ItemDataPair;
+import reghzy.blocklimiter.track.utils.BlockDataPair;
+import reghzy.blocklimiter.track.world.BPLVec3i;
+import reghzy.blocklimiter.track.world.TrackedBlock;
+import reghzy.blocklimiter.track.world.WorldTracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,25 +19,25 @@ public final class Synchroniser {
     public static List<TrackedBlock> scanForUnsynedBlocks(boolean loadChunks) {
         ArrayList<TrackedBlock> unsynced = new ArrayList<TrackedBlock>();
         ServerTracker serverTracker = ServerTracker.getInstance();
-
         for(WorldTracker worldTracker : serverTracker.getWorldTrackers()) {
             World world = worldTracker.getWorld();
             if (world == null)
                 continue;
 
             for (TrackedBlock block : worldTracker.getAllBlocks()) {
-                Vector3 location = block.getLocation();
-                if (!loadChunks) {
-                    if (!world.isChunkLoaded(location.x >> 4, location.z >> 4)) {
-                        continue;
+                BPLVec3i location = block.getLocation();
+                if (loadChunks || world.isChunkLoaded(location.x >> 4, location.z >> 4)) {
+                    Chunk chunk = NMSAPI.getChunk(world, location.x >> 4, location.z >> 4);
+                    int id = NMSAPI.getBlockId(chunk, location.x, location.y, location.z);
+                    BlockDataPair data = block.getBlockData();
+                    if (data.data == -1) {
+                        if (data.id != id) {
+                            unsynced.add(block);
+                        }
                     }
-                }
-
-                Chunk chunk = ((CraftChunk) world.getChunkAt(location.x >> 4, location.z >> 4)).getHandle();
-                int id = chunk.getTypeId(location.x & 15, location.y & 255, location.z & 15);
-                int meta = chunk.getData(location.x & 15, location.y & 255, location.z & 15);
-                if (!block.getBlockData().match(id, meta)) {
-                    unsynced.add(block);
+                    else if (data.id != id && data.data != NMSAPI.getBlockData(chunk, location.x, location.y, location.z)) {
+                        unsynced.add(block);
+                    }
                 }
             }
         }
@@ -48,7 +49,7 @@ public final class Synchroniser {
         return unsynced;
     }
 
-    public static List<TrackedBlock> scanForUnsynedBlocks(boolean loadChunks, ItemDataPair data) {
+    public static List<TrackedBlock> scanForUnsynedBlocks(boolean loadChunks, ItemDataPair specificItem) {
         ArrayList<TrackedBlock> unsynced = new ArrayList<TrackedBlock>();
         for (WorldTracker worldTracker : ServerTracker.getInstance().getWorldTrackers()) {
             World world = worldTracker.getWorld();
@@ -56,22 +57,23 @@ public final class Synchroniser {
                 continue;
 
             for (TrackedBlock block : worldTracker.getAllBlocks()) {
-                if (!block.getBlockData().match(data.getId(), data.getData())) {
+                BlockDataPair data = block.getBlockData();
+                if (!data.match(specificItem.getId(), specificItem.getData())) {
                     continue;
                 }
 
-                Vector3 location = block.getLocation();
-                if (!loadChunks) {
-                    if (!world.isChunkLoaded(location.x >> 4, location.z >> 4)) {
-                        continue;
+                BPLVec3i location = block.getLocation();
+                if (loadChunks || world.isChunkLoaded(location.x >> 4, location.z >> 4)) {
+                    Chunk chunk = NMSAPI.getChunk(world, location.x >> 4, location.z >> 4);
+                    int id = NMSAPI.getBlockId(chunk, location.x, location.y, location.z);
+                    if (data.data == -1) {
+                        if (data.id != id) {
+                            unsynced.add(block);
+                        }
                     }
-                }
-
-                Chunk chunk = ((CraftChunk) world.getChunkAt(location.x >> 4, location.z >> 4)).getHandle();
-                int id = chunk.getTypeId(location.x & 15, location.y & 255, location.z & 15);
-                int meta = chunk.getData(location.x & 15, location.y & 255, location.z & 15);
-                if (!block.getBlockData().match(id, meta)) {
-                    unsynced.add(block);
+                    else if (data.id != id && data.data != NMSAPI.getBlockData(chunk, location.x, location.y, location.z)) {
+                        unsynced.add(block);
+                    }
                 }
             }
         }

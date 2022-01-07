@@ -1,7 +1,7 @@
 package reghzy.blocklimiter.track.world.layer;
 
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
+import reghzy.blocklimiter.track.world.BPLVec3i;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface IHeightLayer2D {
      * @param vector The coordinates of the block (only uses the X and Z part)
      * @return The block, or null if it didn't exist
      */
-    TrackedBlock getBlock(Vector3 vector);
+    TrackedBlock getBlock(BPLVec3i vector);
 
     /**
      * Removes the block from this height layer, and from the player's data who owned it, and returns the block
@@ -39,7 +39,7 @@ public interface IHeightLayer2D {
      * @param vector The coordinates of the block (only uses the X and Z part)
      * @return The block that was previously there (or null if it didn't exist. Usually it should NOT be null)
      */
-    TrackedBlock breakBlock(Vector3 vector);
+    TrackedBlock breakBlock(BPLVec3i vector);
 
     /**
      * Removes the block from this height layer, and from the player's data who owned it, and returns the block

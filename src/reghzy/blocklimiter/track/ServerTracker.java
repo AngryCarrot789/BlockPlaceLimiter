@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import reghzy.api.commands.utils.RZLogger;
 import reghzy.api.utils.ExceptionHelper;
 import reghzy.api.utils.ItemHelper;
+import reghzy.api.utils.KVObjectCache;
 import reghzy.blocklimiter.BlockPlaceLimiterPlugin;
 import reghzy.blocklimiter.exceptions.FailedFileCreationException;
 import reghzy.blocklimiter.exceptions.IncorrectDataFormatException;
@@ -18,13 +19,13 @@ import reghzy.blocklimiter.track.user.data.PlayerDataLoader;
 import reghzy.blocklimiter.track.user.data.StringBasedPlayerDataLoader;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
+import reghzy.blocklimiter.track.world.BPLVec3i;
 import reghzy.blocklimiter.track.world.WorldTracker;
 import reghzy.blocklimiter.utils.Translator;
 import reghzy.carrottools.playerdata.PlayerRegister;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
-import javax.naming.OperationNotSupportedException;
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -37,14 +38,21 @@ public final class ServerTracker {
     private final UserDataManager userDataManager;
     private final HashMap<String, WorldTracker> worlds;
 
+    private final KVObjectCache<String, WorldTracker> worldCache = new KVObjectCache<String, WorldTracker>() {
+        @Override
+        public WorldTracker getValue(String key) {
+            return worlds.get(key);
+        }
+    };
+
     public static final RZLogger LOGGER = BlockPlaceLimiterPlugin.LOGGER;
     
-    public ServerTracker() throws OperationNotSupportedException {
+    public ServerTracker() throws IllegalStateException {
         if (ServerTracker.instance == null) {
             ServerTracker.instance = this;
         }
         else {
-            throw new OperationNotSupportedException("ServerTracker instance already exists!");
+            throw new IllegalStateException("ServerTracker instance already exists!");
         }
 
         this.userDataManager = new UserDataManager(this);
@@ -101,11 +109,17 @@ public final class ServerTracker {
 
         int count = 0;
         for(UserBlockData data : getUserManager().getUsersData()) {
-            User user = data.getUser();
-            if (this.dataLoader.savePlayer(new File(directory, user.getName() + ".dat"), user, forceIfUnchanged)) {
-                count++;
+            try {
+                if (this.dataLoader.savePlayer(new File(directory, data.getUser().getName() + ".dat"), data, forceIfUnchanged)) {
+                    count++;
+                }
+            }
+            catch (Throwable e) {
+                LOGGER.logFormatConsole("Failed to save player data");
+                ExceptionHelper.printException(e, LOGGER, true);
             }
         }
+
         return count;
     }
 
@@ -116,14 +130,12 @@ public final class ServerTracker {
             LOGGER.logFormatConsole("A limited block (&a{0}&6:&2{1}&6, aka &e{5}) in '{2}' at '{3}' didn't exist, but was still placed. Breaker: {4}",
                                     block.getTypeId(), block.getData(),
                                     breakerPlayer.getWorld().getName(),
-                                    new Vector3(block).toString(),
+                                    new BPLVec3i(block).toString(),
                                     breaker.getName(),
                                     ItemHelper.getItemName(block.getTypeId(), 0));
             for(Player player : Bukkit.getOnlinePlayers()) {
                 if (player.isOp()) {
-                    if (PlayerRegister.getData(player).meta.getOrCreateBoolRef("msg-limitedbroken-nonexistant", true).getValue()) {
-
-                    }
+                    if (PlayerRegister.getData(player).meta.getOrCreateBoolRef("msg-limitedbroken-nonexistant", true).getValue()) { }
                 }
             }
 
@@ -177,7 +189,7 @@ public final class ServerTracker {
                                     trackedBlock.getBlockData().toString(), block.getWorld().getName(),
                                     trackedBlock.getLocation().toString(), placer.getName(),
                                     ItemHelper.getItemName(trackedBlock.getBlockData().id, trackedBlock.getBlockData().data));
-            LOGGER.logFormatConsole("Possible Cause: The block can destroy itself (e.g TNT), or block was broken (WorldEdited, Block Breaker, etc) and they quickly replaced the block (too fast for the synchroniser to detect)");
+            LOGGER.logFormatConsole("Possible Cause: The block can destroy itself (e.g TNT), or block was broken (WorldEdited, Block Breaker, flux pickaxe, etc) and they quickly replaced the block (too fast for the synchroniser to detect)");
             LOGGER.logFormatConsole("Previous Block space owner was '{0}', New placer is '{1}'", trackedBlock.getOwner().getName(), placer.getName());
             LOGGER.logFormatConsole("Removing the block that was previously there (owned by {0})", trackedBlock.getOwner().getName());
             breakBlockAt(trackedBlock);
@@ -185,7 +197,7 @@ public final class ServerTracker {
 
         UserBlockData placerData = getUserManager().getBlockData(placer);
         if (limiter.canPlayerPlace(placerPlayer, placerData.getPlacedBlocks(limiter.dataPair))) {
-            placeNewBlockAt(placerPlayer.getWorld(), placer, limiter.dataPair, new Vector3(block));
+            placeNewBlockAt(placerPlayer.getWorld(), placer, limiter.dataPair, new BPLVec3i(block));
             return false;
         }
         else {
@@ -220,11 +232,11 @@ public final class ServerTracker {
         return getBlockAt(getWorldTracker(block.getWorld()), block.getX(), block.getY(), block.getZ());
     }
 
-    public TrackedBlock getBlockAt(WorldTracker world, Vector3 location) {
+    public TrackedBlock getBlockAt(WorldTracker world, BPLVec3i location) {
         return world.getBlock(location);
     }
 
-    public TrackedBlock getBlockAt(String worldName, Vector3 location) {
+    public TrackedBlock getBlockAt(String worldName, BPLVec3i location) {
         return getBlockAt(worldName, location.x, location.y, location.z);
     }
 
@@ -232,7 +244,7 @@ public final class ServerTracker {
         return getBlockAt(getWorldTracker(worldName), x, y, z);
     }
 
-    public TrackedBlock getBlockAt(World world, Vector3 location) {
+    public TrackedBlock getBlockAt(World world, BPLVec3i location) {
         return getBlockAt(getWorldTracker(world), location.x, location.y, location.z);
     }
 
@@ -249,24 +261,24 @@ public final class ServerTracker {
     // --------------------------------- Placing ----------------------------------------- //
 
     // New blocks
-    public TrackedBlock placeNewBlockAt(WorldTracker world, User owner, String worldName, BlockDataPair blockData, Vector3 location) {
+    public TrackedBlock placeNewBlockAt(WorldTracker world, User owner, String worldName, BlockDataPair blockData, BPLVec3i location) {
         return placeBlockAt(world, TrackedBlock.createBlock(owner, worldName, blockData, location));
     }
 
-    public TrackedBlock placeNewBlockAt(WorldTracker world, User owner, BlockDataPair blockData, Vector3 location) {
+    public TrackedBlock placeNewBlockAt(WorldTracker world, User owner, BlockDataPair blockData, BPLVec3i location) {
         return placeBlockAt(world, TrackedBlock.createBlock(owner, world.getWorldName(), blockData, location));
     }
 
-    public TrackedBlock placeNewBlockAt(String worldName, User owner, BlockDataPair blockData, Vector3 location) {
+    public TrackedBlock placeNewBlockAt(String worldName, User owner, BlockDataPair blockData, BPLVec3i location) {
         return placeBlockAt(worldName, TrackedBlock.createBlock(owner, worldName, blockData, location));
     }
 
-    public TrackedBlock placeNewBlockAt(World world, User owner, BlockDataPair blockData, Vector3 location) {
+    public TrackedBlock placeNewBlockAt(World world, User owner, BlockDataPair blockData, BPLVec3i location) {
         return placeBlockAt(world, TrackedBlock.createBlock(owner, world.getName(), blockData, location));
     }
 
     // Existing blocks
-    public TrackedBlock placeBlockAt(World world, TrackedBlock block, Vector3 location) {
+    public TrackedBlock placeBlockAt(World world, TrackedBlock block, BPLVec3i location) {
         return placeBlockAt(getWorldTracker(world), block, location);
     }
 
@@ -278,11 +290,11 @@ public final class ServerTracker {
         return placeBlockAt(getWorldTracker(worldName), block, x, y, z);
     }
 
-    public TrackedBlock placeBlockAt(String worldName, TrackedBlock block, Vector3 location) {
+    public TrackedBlock placeBlockAt(String worldName, TrackedBlock block, BPLVec3i location) {
         return placeBlockAt(getWorldTracker(worldName), block, location);
     }
 
-    public TrackedBlock placeBlockAt(WorldTracker world, TrackedBlock block, Vector3 location) {
+    public TrackedBlock placeBlockAt(WorldTracker world, TrackedBlock block, BPLVec3i location) {
         return placeBlockAt(world, block, location.x, location.y, location.z);
     }
 
@@ -314,7 +326,7 @@ public final class ServerTracker {
         return breakBlockAt(block.getWorld(), block.getX(), block.getY(), block.getZ());
     }
 
-    public TrackedBlock breakBlockAt(World world, Vector3 location) {
+    public TrackedBlock breakBlockAt(World world, BPLVec3i location) {
         return breakBlockAt(getWorldTracker(world), location);
     }
 
@@ -326,11 +338,11 @@ public final class ServerTracker {
         return breakBlockAt(getWorldTracker(worldName), x, y, z);
     }
 
-    public TrackedBlock breakBlockAt(String worldName, Vector3 location) {
+    public TrackedBlock breakBlockAt(String worldName, BPLVec3i location) {
         return breakBlockAt(getWorldTracker(worldName), location);
     }
 
-    public TrackedBlock breakBlockAt(WorldTracker world, Vector3 location) {
+    public TrackedBlock breakBlockAt(WorldTracker world, BPLVec3i location) {
         return breakBlockAt(world, location.x, location.y, location.z);
     }
 
@@ -340,32 +352,38 @@ public final class ServerTracker {
 
     // ----------------------------------------------------------------------------------- //
 
+    @Nonnull
     public WorldTracker getWorldTracker(String name) {
         return getOrCreateWorldTracker(name);
     }
 
+    @Nonnull
     public WorldTracker getWorldTracker(World world) {
         return getWorldTracker(world.getName());
     }
 
+    @Nonnull
     public Collection<WorldTracker> getWorldTrackers() {
         return this.worlds.values();
     }
 
+    @Nonnull
     public UserDataManager getUserManager() {
         return this.userDataManager;
     }
 
+    @Nonnull
     public static ServerTracker getInstance() {
         return ServerTracker.instance;
     }
 
+    @Nonnull
     private WorldTracker getOrCreateWorldTracker(String name) {
-        WorldTracker worldTracker = worlds.get(name);
+        WorldTracker worldTracker = worldCache.get(name);
         if (worldTracker == null) {
-            worldTracker = new WorldTracker(this, name);
-            worlds.put(name, worldTracker);
+            worlds.put(name, worldTracker = new WorldTracker(this, name));
         }
+
         return worldTracker;
     }
 }

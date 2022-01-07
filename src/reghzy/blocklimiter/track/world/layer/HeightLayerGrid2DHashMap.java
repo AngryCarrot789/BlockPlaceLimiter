@@ -1,8 +1,8 @@
 package reghzy.blocklimiter.track.world.layer;
 
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
-import reghzy.blocklimiter.utils.collections.Grid2DHashMap;
+import reghzy.blocklimiter.track.world.BPLVec3i;
+import reghzy.blocklimiter.utils.Grid2DHashMap;
 
 import java.util.Collection;
 
@@ -42,7 +42,7 @@ public class HeightLayerGrid2DHashMap implements IHeightLayer2D {
         return breakBlock(trackedBlock.getLocation().x, trackedBlock.getLocation().z);
     }
 
-    public TrackedBlock breakBlock(Vector3 vector) {
+    public TrackedBlock breakBlock(BPLVec3i vector) {
         return breakBlock(vector.x, vector.z);
     }
 
@@ -55,7 +55,7 @@ public class HeightLayerGrid2DHashMap implements IHeightLayer2D {
         return block;
     }
 
-    public TrackedBlock getBlock(Vector3 location) {
+    public TrackedBlock getBlock(BPLVec3i location) {
         return getBlock(location.x, location.z);
     }
 

@@ -4,15 +4,15 @@ import org.bukkit.command.CommandSender;
 import reghzy.api.commands.ExecutableCommand;
 import reghzy.api.commands.utils.CommandArgs;
 import reghzy.api.commands.utils.RZLogger;
-import reghzy.api.utils.MathsHelper;
+import reghzy.api.permission.IPermission;
+import reghzy.api.utils.Maths;
 import reghzy.blocklimiter.command.BPLPermission;
 import reghzy.blocklimiter.track.ServerTracker;
 import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.world.TrackedBlock;
 import reghzy.blocklimiter.track.world.WorldTracker;
-import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntry;
-import reghzy.api.permission.IPermission;
+import reghzy.carrottools.utils.collections.multimap.MultiMapEntry;
 
 import java.util.Collection;
 
@@ -44,6 +44,7 @@ public class StatsCommand extends ExecutableCommand {
             logger.logFormat("&a{0} &6has &b{1} &6total blocks (&3{2} &6unique IDs)", user.getName(), totalBlocks, user.getData().getPlacedIDs());
             bytesCount += 16;
         }
+
         logger.logFormat("&5----------------------------------------");
         Collection<WorldTracker> worlds = server.getWorldTrackers();
         logger.logFormat("&6There are &e{0} &6worlds loaded into RAM &5----------", worlds.size());
@@ -51,9 +52,10 @@ public class StatsCommand extends ExecutableCommand {
             bytesCount += 2072;
             logger.logFormat("&a{0} &6has &b{1} &6total blocks", world.getWorldName(), world.getAllBlocks().size());
         }
+
         logger.logFormat("&5----------------------------------------");
-        double kb = MathsHelper.round(((float) bytesCount) / 1024.0d, 2);
-        double mb = MathsHelper.round(kb / 1024.0d, 2);
+        double kb = Maths.round(((float) bytesCount) / 1024.0d, 2);
+        double mb = Maths.round(kb / 1024.0d, 2);
         logger.logFormat("&6&lAverage&6 RAM usage is &b{0} &6KB (&3{1} &6MB)", kb, mb);
     }
 }

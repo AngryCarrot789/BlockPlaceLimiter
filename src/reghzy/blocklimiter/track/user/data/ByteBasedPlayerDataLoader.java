@@ -8,8 +8,8 @@ import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.track.user.UserBlockData;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
-import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntry;
+import reghzy.blocklimiter.track.world.BPLVec3i;
+import reghzy.carrottools.utils.collections.multimap.MultiMapEntry;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -51,9 +51,7 @@ public class ByteBasedPlayerDataLoader extends PlayerDataLoader {
             int totalBlocks = input.readInt();                      // read number of entries
             for (int i = 0; i < totalBlocks; i++) {
                 try {
-                    int id;
-                    int data;
-                    int blockCount;
+                    int id, data, blockCount;
                     try {
                         id = input.readUnsignedShort();             // read id (2 bytes)
                         data = input.readUnsignedShort();           // read data (2 bytes)
@@ -66,9 +64,7 @@ public class ByteBasedPlayerDataLoader extends PlayerDataLoader {
                     BlockDataPair dataPair = new BlockDataPair(id, data);
                     for (int j = 0; j < blockCount; j++) {
                         String worldName;
-                        int x;
-                        int y;
-                        int z;
+                        int x, y, z;
 
                         try {
                             worldName = readWorldName(input);       // read world name (2+ bytes)
@@ -80,7 +76,7 @@ public class ByteBasedPlayerDataLoader extends PlayerDataLoader {
                             throw new IOException(RZFormats.format("Failed to read tracked block entry {0}/{1} for block '{2}:{3}'", j + 1, blockCount, id, data), e);
                         }
 
-                        this.serverTracker.placeNewBlockAt(worldName, user, dataPair, new Vector3(x, y, z));
+                        this.serverTracker.placeNewBlockAt(worldName, user, dataPair, new BPLVec3i(x, y, z));
                     }
                 }
                 catch (IOException e) {
@@ -91,18 +87,17 @@ public class ByteBasedPlayerDataLoader extends PlayerDataLoader {
     }
 
     @Override
-    public boolean savePlayer(File file, User user, boolean forceIfUnchanged) throws IOException, FailedFileCreationException {
+    public boolean savePlayer(File file, UserBlockData userData, boolean forceIfUnchanged) throws IOException, FailedFileCreationException {
         if (!file.exists()) {
             if (!file.createNewFile()) {
-                throw new FailedFileCreationException("Failed to create user data file for player: " + user.getName());
+                throw new FailedFileCreationException("Failed to create user data file for player: " + userData.getUser().getName());
             }
         }
 
-        UserBlockData data = ServerTracker.getInstance().getUserManager().getBlockData(user);
-        if (data.hasDataChanged() || forceIfUnchanged) {
+        if (userData.hasDataChanged() || forceIfUnchanged) {
             FileOutputStream fileOut = new FileOutputStream(file, false);
             DataOutputStream output = new DataOutputStream(new BufferedOutputStream(fileOut));
-            Collection<MultiMapEntry<BlockDataPair, TrackedBlock>> trackedBlocks = data.getBlockEntries();
+            Collection<MultiMapEntry<BlockDataPair, TrackedBlock>> trackedBlocks = userData.getBlockEntries();
             output.writeInt(trackedBlocks.size());              // write number of entries (4 bytes)
             for (MultiMapEntry<BlockDataPair, TrackedBlock> limiters : trackedBlocks) {
                 BlockDataPair blockData = limiters.getKey();
@@ -120,7 +115,7 @@ public class ByteBasedPlayerDataLoader extends PlayerDataLoader {
 
                         for (TrackedBlock block : placedBlocks) {
                             String worldName = block.getWorldName();
-                            Vector3 location = block.getLocation();
+                            BPLVec3i location = block.getLocation();
                             try {
                                 output.writeShort(worldName.length());  // write the length of the world name (2 bytes)
                                 output.writeChars(worldName);           // write the world name string (? bytes)
@@ -141,7 +136,7 @@ public class ByteBasedPlayerDataLoader extends PlayerDataLoader {
 
             output.flush();
             output.close();
-            data.setDataChanged(false);
+            userData.setDataChanged(false);
             return true;
         }
         else {

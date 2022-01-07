@@ -10,8 +10,8 @@ import reghzy.blocklimiter.track.user.User;
 import reghzy.blocklimiter.track.user.UserBlockData;
 import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.track.world.Vector3;
-import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntry;
+import reghzy.blocklimiter.track.world.BPLVec3i;
+import reghzy.carrottools.utils.collections.multimap.MultiMapEntry;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -76,7 +76,7 @@ public class StringBasedPlayerDataLoader extends PlayerDataLoader {
                     throw new IncorrectDataFormatException(RZFormats.format("The split data between the world and block location (split by a '{0}' char) was incorrect. Data: '{1}'", WorldVectorSplit, location));
                 }
 
-                Vector3 parsedLocation = Vector3.deserialise(worldVector.after);
+                BPLVec3i parsedLocation = BPLVec3i.deserialise(worldVector.after);
                 if (parsedLocation == null) {
                     throw new IncorrectDataFormatException(RZFormats.format("A parsed Vector3 (X,Y,Z) was not formatted correctly. Data: '{0}'", worldVector.after));
                 }
@@ -87,19 +87,18 @@ public class StringBasedPlayerDataLoader extends PlayerDataLoader {
     }
 
     @Override
-    public boolean savePlayer(File file, User user, boolean forceIfUnchanged) throws IOException, FailedFileCreationException {
+    public boolean savePlayer(File file, UserBlockData data, boolean forceIfUnchanged) throws IOException, FailedFileCreationException {
         if (!file.exists()) {
             try {
                 if (!file.createNewFile()) {
-                    throw new FailedFileCreationException("Failed to create user data file for player: " + user.getName());
+                    throw new FailedFileCreationException("Failed to create user data file for player: " + data.getUser().getName());
                 }
             }
             catch (IOException e) {
-                throw new FailedFileCreationException("IOException while creating user data file for player: " + user.getName());
+                throw new FailedFileCreationException("IOException while creating user data file for player: " + data.getUser().getName());
             }
         }
 
-        UserBlockData data = ServerTracker.getInstance().getUserManager().getBlockData(user);
         if (data.hasDataChanged() || forceIfUnchanged) {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
             for (MultiMapEntry<BlockDataPair, TrackedBlock> limiters : data.getBlockEntries()) {
@@ -110,7 +109,7 @@ public class StringBasedPlayerDataLoader extends PlayerDataLoader {
                     for (TrackedBlock block : placedBlocks) {
                         writer.append(block.getWorldName()).
                                 append(WorldVectorSplit).
-                                append(Vector3.serialise(block.getLocation())).
+                                append(BPLVec3i.serialise(block.getLocation())).
                                 append(LocationSplit);
                     }
 

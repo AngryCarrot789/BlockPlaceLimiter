@@ -5,35 +5,35 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import reghzy.api.utils.text.StringHelper;
 
-public class Vector3 {
+public class BPLVec3i {
     public int x;
     public int y;
     public int z;
 
-    public Vector3() {
+    public BPLVec3i() {
 
     }
 
-    public Vector3(int x, int y, int z) {
+    public BPLVec3i(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public Vector3(Block block) {
+    public BPLVec3i(Block block) {
         this.x = block.getX();
         this.y = block.getY();
         this.z = block.getZ();
     }
 
-    public Vector3(Location location) {
+    public BPLVec3i(Location location) {
         this.x = location.getBlockX();
         this.y = location.getBlockY();
         this.z = location.getBlockZ();
     }
 
-    public BlockLocation2D toVector2() {
-        return new BlockLocation2D(this.x, this.z);
+    public BPLVec2i toVector2() {
+        return new BPLVec2i(this.x, this.z);
     }
 
     public void set(int x, int y, int z) {
@@ -50,16 +50,16 @@ public class Vector3 {
         return new Location(world, this.x, this.y, this.z);
     }
 
-    public static Vector3 deserialise(String content) {
+    public static BPLVec3i deserialise(String content) {
         String[] split = StringHelper.split(content, ',', 0);
         if (split.length != 3) {
             return null;
         }
 
-        return new Vector3(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+        return new BPLVec3i(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
     }
 
-    public static String serialise(Vector3 vector3) {
+    public static String serialise(BPLVec3i vector3) {
         return new StringBuilder().append(vector3.x).append(',').append(vector3.y).append(',').append(vector3.z).toString();
     }
 
@@ -74,8 +74,8 @@ public class Vector3 {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Vector3) {
-            Vector3 v = (Vector3) obj;
+        if (obj instanceof BPLVec3i) {
+            BPLVec3i v = (BPLVec3i) obj;
             return v.x == this.x && v.y == this.y && v.z == this.z;
         }
         return false;

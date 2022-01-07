@@ -17,9 +17,10 @@ import reghzy.blocklimiter.track.utils.BlockDataPair;
 import reghzy.blocklimiter.track.utils.IntegerRange;
 import reghzy.blocklimiter.track.utils.RangeLimit;
 import reghzy.blocklimiter.track.world.TrackedBlock;
-import reghzy.blocklimiter.utils.collections.multimap.MultiMapEntry;
+import reghzy.carrottools.utils.collections.multimap.MultiMapEntry;
 import reghzy.api.permission.IPermission;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class MyPlacedBlocksCommand extends SingleCommandExecutor {
@@ -50,22 +51,29 @@ public class MyPlacedBlocksCommand extends SingleCommandExecutor {
         }
         else {
             logger.logFormat("&6Total placed (unique) limited blocks: &3{0}", placed);
-            logger.logFormat("&6And those are: &3-------------------------------");
-            for (MultiMapEntry<BlockDataPair, TrackedBlock> entries : data.getBlockEntries()) {
-                logger.logFormat("  &6Block ID:Meta: &3{0}", entries.getKey().toString());
-                int placedOf = entries.getValues().size();
+            logger.logFormat("&6And those are: &3------------------------------");
+            Collection<MultiMapEntry<BlockDataPair, TrackedBlock>> entries = data.getBlockEntries();
+            int lenIndex = entries.size() - 1;
+            int index = 0;
+            for (MultiMapEntry<BlockDataPair, TrackedBlock> entry : entries) {
+                logger.logFormat("  &6Block ID:Meta: &3{0}", entry.getKey().toString());
+                int placedOf = entry.getValues().size();
                 logger.logFormat("  &6Placed number of this block: &3{0}", placedOf);
-                int available = calculateRemainingBlocks((Player) sender, entries.getKey());
+                int available = calculateRemainingBlocks((Player) sender, entry.getKey());
                 if (available != -1) {
                     logger.logFormat("  &6Remaining blocks: &3{0}", available - placedOf);
                 }
                 logger.logFormat("  &6Placed locations:");
-                for (TrackedBlock block : entries.getValues()) {
+                for (TrackedBlock block : entry.getValues()) {
                     logger.logFormat("    &6World: &3{0}&6, Location: {1}", block.getWorldName(), block.getLocation().formatColour());
                 }
+
+                if ((index++) != lenIndex) {
+                    logger.logFormat("&3------------------------------------------");
+                }
             }
-            logger.logFormat("&3------------------------------------------");
         }
+
         logger.logFormat("&3-------------------------------------------");
     }
 
